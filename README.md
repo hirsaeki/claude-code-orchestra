@@ -104,6 +104,7 @@ CLAUDE.md -> AGENTS.md     # シンボリックリンク
 | ルール | 内容 |
 |--------|------|
 | **coding-principles** | シンプルさ，単一責任，早期リターン，型ヒント |
+| **dev-environment** | uv，ruff，ty，marimo の使用方法 |
 | **security** | 機密情報管理，入力検証，SQLi/XSS 防止 |
 | **testing** | TDD，AAA パターン，カバレッジ 80% |
 

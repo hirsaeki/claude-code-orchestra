@@ -14,9 +14,10 @@ LLM/エージェント開発プロジェクト
 - **パッケージ管理**: uv（必須）
 - **開発ツール**:
   - ruff（リント・フォーマット）
-  - mypy（型チェック）
+  - ty（型チェック）
   - poe / poethepoet（タスクランナー）
   - pytest（テスト）
+  - marimo（ノートブック環境，オプション）
 - **環境管理**: venv（uv経由で管理）
 - **主要ライブラリ**: <!-- 使用ライブラリを記入 -->
 
@@ -81,6 +82,7 @@ Claude Code と Codex CLI の両方で利用可能です。
 | ルール | 内容 |
 |--------|------|
 | **coding-principles** | シンプルさ，単一責任，早期リターン，型ヒント |
+| **dev-environment** | uv，ruff，ty，marimo の使用方法 |
 | **security** | 機密情報管理，入力検証，SQLi/XSS防止 |
 | **testing** | TDD，AAA パターン，カバレッジ 80% |
 
@@ -143,6 +145,7 @@ Claude Code と Codex CLI の両方で利用可能です。
 ├── agents/                # サブエージェント
 ├── rules/                 # 常時適用ルール
 │   ├── coding-principles.md
+│   ├── dev-environment.md
 │   ├── security.md
 │   └── testing.md
 ├── docs/                  # 知識ベース（実体）
@@ -180,13 +183,13 @@ uv sync                    # 依存関係同期
 # タスク実行（poethepoet）
 poe lint                   # ruff check + format
 poe test                   # pytest実行
-poe typecheck              # mypy実行
+poe typecheck              # ty実行
 poe all                    # 全チェック実行
 
 # 個別実行
 uv run ruff check .
 uv run ruff format .
-uv run mypy src/
+uv run ty check src/
 uv run pytest -v --tb=short
 ```
 
