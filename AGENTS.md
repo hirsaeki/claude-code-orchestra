@@ -53,15 +53,26 @@ Claude Code と Codex CLI の両方で利用可能です。
 
 `/command` で呼び出すコマンド：
 
+#### Claude Code コマンド
+
 | コマンド | 用途 |
 |---------|------|
 | `/init` | プロジェクト分析・AGENTS.md 生成 |
-| `/plan` | 実装計画の立案 |
-| `/tdd` | テスト駆動開発ワークフロー |
-| `/research-lib` | ライブラリを調査してドキュメント化 |
-| `/simplify` | 指定コードをシンプルにリファクタリング |
+| `/plan <feature>` | 実装計画の立案 |
+| `/tdd <feature>` | テスト駆動開発ワークフロー |
+| `/research-lib <library>` | ライブラリを調査してドキュメント化 |
+| `/simplify <path>` | 指定コードをシンプルにリファクタリング |
 | `/update-design` | 会話から設計ドキュメントを更新 |
 | `/update-lib-docs` | ライブラリドキュメントを最新化 |
+
+#### Codex CLI コマンド
+
+| コマンド | 用途 |
+|---------|------|
+| `/analyze <topic>` | 問題を深く分析し、選択肢とトレードオフを整理 |
+| `/review-architecture <path>` | アーキテクチャをレビュー、懸念点と推奨事項を提示 |
+| `/consult <question>` | Claude Code からの相談に回答 |
+| `/update-design` | 設計判断を整理して記録 |
 
 ### Rules（常時適用）
 

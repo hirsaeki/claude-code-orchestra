@@ -25,7 +25,7 @@ This skill manages the project's design documentation (`.claude/docs/DESIGN.md`)
 
 ### Recording Decisions
 
-1. Read existing `docs/DESIGN.md`
+1. Read existing `.claude/docs/DESIGN.md`
 2. Extract the decision/information from conversation
 3. Update the appropriate section
 4. Add entry to Changelog with today's date

@@ -133,7 +133,7 @@ CLAUDE.md -> AGENTS.md     # シンボリックリンク
 | `/init` | プロジェクトを分析して AGENTS.md を生成 |
 | `/plan <feature>` | 実装計画を立案 |
 | `/tdd <feature>` | テスト駆動開発ワークフロー |
-| `/research-lib <lib>` | ライブラリを調査して文書化 |
+| `/research-lib <library>` | ライブラリを調査して文書化 |
 | `/simplify <path>` | コードをシンプルにリファクタリング |
 | `/update-design` | 設計ドキュメントを更新 |
 | `/update-lib-docs` | ライブラリドキュメントを最新化 |
