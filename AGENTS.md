@@ -60,7 +60,7 @@ Agents that execute specialized tasks in independent context:
 - When uncertain about anything → Just ask Codex
 
 ```bash
-codex exec --model gpt-5-codex --sandbox read-only --full-auto "your question" 2>/dev/null
+codex exec --model gpt-5.2-codex --config model_reasoning_effort="xhigh" --sandbox read-only --full-auto "your question" 2>/dev/null
 ```
 
 ### Commands (Explicit Invocation)

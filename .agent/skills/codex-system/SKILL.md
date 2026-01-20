@@ -83,22 +83,12 @@ Codex will provide better analysis than you can do alone. Don't hesitate to ask.
 
 ## Execution Method
 
-### Basic Format
+### Standard Format (Always Use This)
 
 ```bash
 codex exec \
-  --model gpt-5-codex \
-  --sandbox read-only \
-  --full-auto \
-  "{prompt}" 2>/dev/null
-```
-
-### Specifying Reasoning Effort
-
-```bash
-codex exec \
-  --model gpt-5-codex \
-  --config model_reasoning_effort="high" \
+  --model gpt-5.2-codex \
+  --config model_reasoning_effort="xhigh" \
   --sandbox read-only \
   --full-auto \
   "{prompt}" 2>/dev/null

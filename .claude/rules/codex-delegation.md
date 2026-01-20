@@ -39,7 +39,8 @@ Ask yourself: "Am I about to make a non-trivial decision?"
 
 ```bash
 codex exec \
-  --model gpt-5-codex \
+  --model gpt-5.2-codex \
+  --config model_reasoning_effort="xhigh" \
   --sandbox read-only \
   --full-auto \
   "Question or analysis request" 2>/dev/null
