@@ -1,0 +1,6 @@
+# Codex CLI Project Configuration
+# This file enables project-specific Codex settings
+
+# Enable skills feature
+[features]
+skills = true
