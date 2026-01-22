@@ -130,6 +130,17 @@ Rules to always follow (`.claude/rules/`):
 | **security** | Secrets management, input validation, SQLi/XSS prevention |
 | **testing** | TDD, AAA pattern, 80% coverage |
 
+### Hooks (Automatic Triggers)
+
+Hooks that fire automatically at specific points (`.claude/settings.json`):
+
+| Hook | Trigger | Purpose |
+|------|---------|---------|
+| **PreToolUse (Edit\|Write)** | Before file modifications | Remind to consult Codex for design decisions |
+| **PostToolUse (Task)** | After Plan/design tasks | Suggest Codex review for implementation plans |
+
+> **Note:** Hooks add context reminders but don't block operations. They reinforce the Codex consultation workflow.
+
 ---
 
 ## Documentation Reference
