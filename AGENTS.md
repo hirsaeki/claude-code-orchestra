@@ -1,12 +1,6 @@
-# Project Overview
+# fastslow-claude-code
 
-LLM/Agent Development Project
-
-## Language Settings
-
-- **Thinking/Reasoning**: English
-- **Code**: English (variables, functions, comments)
-- **User Communication**: Japanese
+LLM/Agent Development Project with Multi-Agent Collaboration
 
 ---
 
@@ -116,15 +110,6 @@ gemini -p "{question}" 2>/dev/null
 | `.claude/docs/research/` | Gemini調査結果 |
 | `.claude/docs/libraries/` | ライブラリ制約 |
 | `.claude/rules/` | コーディングルール |
-
----
-
-## Context Management
-
-- **`/clear`**: タスク間でコンテキストリセット
-- **`/compact`**: コンテキスト要約
-- **Subagent**: 調査はサブエージェントで分離
-- **Ctrl+T**: タスクリスト表示/非表示
 
 ---
 
