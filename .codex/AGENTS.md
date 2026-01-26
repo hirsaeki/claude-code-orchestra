@@ -84,3 +84,10 @@ Structure your response for Claude Code to use:
 2. **Be specific** — Reference files, lines, concrete patterns
 3. **Be practical** — Focus on what Claude Code can execute
 4. **Check context** — Read `.claude/docs/` before advising
+
+## CLI Logs
+
+Codex/Gemini への入出力は `.claude/logs/cli-tools.jsonl` に記録されています。
+過去の相談内容を確認する場合は、このログを参照してください。
+
+`/checkpointing` 実行後、下記に Session History が追記されます。

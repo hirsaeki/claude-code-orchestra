@@ -90,3 +90,10 @@ Structure your response for Claude Code to use:
 3. **Be actionable** — Focus on what Claude Code can use
 4. **Save findings** — Write to `.claude/docs/research/` for persistence
 5. **Flag for Codex** — If you find design decisions needed, note them
+
+## CLI Logs
+
+Codex/Gemini への入出力は `.claude/logs/cli-tools.jsonl` に記録されています。
+過去の相談内容を確認する場合は、このログを参照してください。
+
+`/checkpointing` 実行後、下記に Session History が追記されます。
