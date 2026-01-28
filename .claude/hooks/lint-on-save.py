@@ -11,6 +11,19 @@ import os
 import subprocess
 import sys
 
+# Input validation constants
+MAX_PATH_LENGTH = 4096
+
+
+def validate_path(file_path: str) -> bool:
+    """Validate file path for security."""
+    if not file_path or len(file_path) > MAX_PATH_LENGTH:
+        return False
+    # Check for path traversal
+    if ".." in file_path:
+        return False
+    return True
+
 
 def get_file_path() -> str | None:
     """Extract file path from tool input."""
@@ -50,6 +63,10 @@ def run_command(cmd: list[str], cwd: str) -> tuple[int, str, str]:
 def main() -> None:
     file_path = get_file_path()
     if not file_path:
+        return
+
+    # Validate input
+    if not validate_path(file_path):
         return
 
     if not is_python_file(file_path):
@@ -104,7 +121,7 @@ def main() -> None:
             file=sys.stderr,
         )
     else:
-        print(f"[lint-on-save] ✓ {rel_path} passed all checks")
+        print(f"[lint-on-save] OK: {rel_path} passed all checks")
 
 
 if __name__ == "__main__":
