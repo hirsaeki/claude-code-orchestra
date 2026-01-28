@@ -7,8 +7,25 @@ code has been written.
 """
 
 import json
-import sys
 import os
+import sys
+
+# Input validation constants
+MAX_PATH_LENGTH = 4096
+MAX_CONTENT_LENGTH = 1_000_000
+
+
+def validate_input(file_path: str, content: str) -> bool:
+    """Validate input for security."""
+    if not file_path or len(file_path) > MAX_PATH_LENGTH:
+        return False
+    if len(content) > MAX_CONTENT_LENGTH:
+        return False
+    # Check for path traversal
+    if ".." in file_path:
+        return False
+    return True
+
 
 # State file to track changes in this session
 STATE_FILE = "/tmp/claude-code-implementation-state.json"
@@ -75,6 +92,10 @@ def main():
         tool_input = data.get("tool_input", {})
         file_path = tool_input.get("file_path", "")
         content = tool_input.get("content", "") or tool_input.get("new_string", "")
+
+        # Validate input
+        if not validate_input(file_path, content):
+            sys.exit(0)
 
         # Skip non-source files
         if not any(file_path.endswith(ext) for ext in [".py", ".ts", ".js", ".tsx", ".jsx", ".go", ".rs"]):

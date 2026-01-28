@@ -7,8 +7,26 @@ for design decisions, complex implementations, or architectural changes.
 """
 
 import json
+import os
 import sys
 from pathlib import Path
+
+# Input validation constants
+MAX_PATH_LENGTH = 4096
+MAX_CONTENT_LENGTH = 1_000_000
+
+
+def validate_input(file_path: str, content: str) -> bool:
+    """Validate input for security."""
+    if not file_path or len(file_path) > MAX_PATH_LENGTH:
+        return False
+    if len(content) > MAX_CONTENT_LENGTH:
+        return False
+    # Check for path traversal
+    if ".." in file_path:
+        return False
+    return True
+
 
 # Patterns that suggest design/architecture decisions
 DESIGN_INDICATORS = [
@@ -91,6 +109,10 @@ def main():
         tool_input = data.get("tool_input", {})
         file_path = tool_input.get("file_path", "")
         content = tool_input.get("content", "") or tool_input.get("new_string", "")
+
+        # Validate input
+        if not validate_input(file_path, content):
+            sys.exit(0)
 
         should_suggest, reason = should_suggest_codex(file_path, content)
 

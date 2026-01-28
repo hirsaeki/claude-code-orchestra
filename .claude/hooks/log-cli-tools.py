@@ -131,7 +131,7 @@ def main() -> None:
         json.dumps(
             {
                 "result": "continue",
-                "message": f"📝 {tool.capitalize()} call logged to .claude/logs/cli-tools.jsonl",
+                "message": f"[LOG] {tool.capitalize()} call logged to .claude/logs/cli-tools.jsonl",
             }
         )
     )
