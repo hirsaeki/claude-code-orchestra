@@ -1,6 +1,6 @@
 # claude-code-orchestra
 
-![]("summary.png")
+![]("/summary.png")
 
 Multi-Agent AI Development Environment
 
