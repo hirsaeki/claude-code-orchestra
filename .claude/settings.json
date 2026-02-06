@@ -7,7 +7,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python \"$CLAUDE_PROJECT_DIR/.claude/hooks/agent-router.py\"",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/agent-router.py\" || python \"$CLAUDE_PROJECT_DIR/.claude/hooks/agent-router.py\"",
             "timeout": 5
           }
         ]
@@ -19,7 +19,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python \"$CLAUDE_PROJECT_DIR/.claude/hooks/check-codex-before-write.py\"",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/check-codex-before-write.py\" || python \"$CLAUDE_PROJECT_DIR/.claude/hooks/check-codex-before-write.py\"",
             "timeout": 10
           }
         ]
@@ -29,7 +29,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python \"$CLAUDE_PROJECT_DIR/.claude/hooks/suggest-gemini-research.py\"",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/suggest-gemini-research.py\" || python \"$CLAUDE_PROJECT_DIR/.claude/hooks/suggest-gemini-research.py\"",
             "timeout": 5
           }
         ]
@@ -41,7 +41,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python \"$CLAUDE_PROJECT_DIR/.claude/hooks/check-codex-after-plan.py\"",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/check-codex-after-plan.py\" || python \"$CLAUDE_PROJECT_DIR/.claude/hooks/check-codex-after-plan.py\"",
             "timeout": 10
           }
         ]
@@ -51,12 +51,12 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python \"$CLAUDE_PROJECT_DIR/.claude/hooks/post-test-analysis.py\"",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/post-test-analysis.py\" || python \"$CLAUDE_PROJECT_DIR/.claude/hooks/post-test-analysis.py\"",
             "timeout": 10
           },
           {
             "type": "command",
-            "command": "python \"$CLAUDE_PROJECT_DIR/.claude/hooks/log-cli-tools.py\"",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/log-cli-tools.py\" || python \"$CLAUDE_PROJECT_DIR/.claude/hooks/log-cli-tools.py\"",
             "timeout": 5
           }
         ]
@@ -66,12 +66,12 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python \"$CLAUDE_PROJECT_DIR/.claude/hooks/lint-on-save.py\"",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/lint-on-save.py\" || python \"$CLAUDE_PROJECT_DIR/.claude/hooks/lint-on-save.py\"",
             "timeout": 30
           },
           {
             "type": "command",
-            "command": "python \"$CLAUDE_PROJECT_DIR/.claude/hooks/post-implementation-review.py\"",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/post-implementation-review.py\" || python \"$CLAUDE_PROJECT_DIR/.claude/hooks/post-implementation-review.py\"",
             "timeout": 10
           }
         ]
@@ -113,6 +113,7 @@
       "Bash(chmod:*)",
       "Bash(git:*)",
       "Bash(python:*)",
+      "Bash(python3:*)",
       "Bash(uv:*)",
       "Bash(ruff:*)",
       "Bash(black:*)",
@@ -166,6 +167,9 @@
       "Read(./**/*.key)",
       "Read(./**/credentials*)",
       "Read(./**/*secret*)",
+      "Read(~/.ssh/**)",
+      "Read(~/.aws/**)",
+      "Read(~/.config/gcloud/**)",
       "Read($HOME/.ssh/**)",
       "Read($HOME/.aws/**)",
       "Read($HOME/.config/gcloud/**)",
