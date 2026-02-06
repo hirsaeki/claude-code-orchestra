@@ -19,7 +19,7 @@
 
 | Aspect | CLI via Bash | MCP Server |
 |--------|-------------|------------|
-| **Process model** | New process per call (`codex exec`) | Long-running server process |
+| **Process model** | New process per call (`codex exec --skip-git-repo-check`) | Long-running server process |
 | **Startup time** | ~100-500ms (process spawn + CLI init) | ~10-50ms (JSON-RPC call to existing server) |
 | **Serialization** | String construction + shell escaping | JSON serialization/deserialization |
 | **Memory** | Isolated process (clean slate each time) | Persistent server (state management needed) |
@@ -93,7 +93,7 @@
 
 | Aspect | CLI via Bash | MCP Server |
 |--------|-------------|------------|
-| **Pattern** | Task tool → spawns subagent → `Bash("codex exec ...")` | Task tool → spawns subagent → ??? |
+| **Pattern** | Task tool → spawns subagent → `Bash("codex exec --skip-git-repo-check ...")` | Task tool → spawns subagent → ??? |
 | **Context flow** | Subagent calls CLI, processes full output, returns summary | Subagent calls MCP tool, processes response, returns summary |
 | **Isolation** | Full process isolation (each call independent) | Depends on MCP server design |
 | **Pros** | ✅ Already working<br>✅ No changes needed<br>✅ Subagent can save raw CLI output | ✅ Could pass structured context<br>✅ Subagent could use MCP resources |

@@ -8,19 +8,23 @@ disable-model-invocation: true
 
 Implement $ARGUMENTS using Test-Driven Development (TDD).
 
-## TDD Cycle
+## TDD Cycle (Role Split)
+
+- **Codex**: Write tests and implementation
+- **Claude Code**: Organize test suites and run tests
+- **Codex**: Analyze failures and propose fixes
 
 ```
 Repeat: Red → Green → Refactor
 
-1. Red:    Write a failing test
-2. Green:  Write minimal code to pass the test
-3. Refactor: Clean up code (tests still pass)
+1. Red:    Codex writes a failing test
+2. Green:  Codex writes minimal code to pass the test
+3. Refactor: Codex refactors code (tests still pass)
 ```
 
 ## Implementation Steps
 
-### Phase 1: Test Design
+### Phase 1: Test Design (Claude)
 
 1. **Confirm Requirements**
    - What is the input
@@ -35,9 +39,9 @@ Repeat: Red → Green → Refactor
    - [ ] Error case: Error handling
    ```
 
-### Phase 2: Red-Green-Refactor
+### Phase 2: Red-Green-Refactor (Codex + Claude)
 
-#### Step 1: Write First Test (Red)
+#### Step 1: Write First Test (Red) — Codex
 
 ```python
 # tests/test_{module}.py
@@ -47,41 +51,42 @@ def test_{function}_basic():
     assert result == expected
 ```
 
-Run test and **confirm failure**:
-```bash
-uv run pytest tests/test_{module}.py -v
+Claude runs test and **confirms failure**:
+```powershell
+uv run pytest tests\\test_{module}.py -v
 ```
 
-#### Step 2: Implementation (Green)
+#### Step 2: Implementation (Green) — Codex
 
 Write **minimal** code to pass the test:
 - Don't aim for perfection
 - Hardcoding is OK
 - Just make the test pass
 
-Run test and **confirm success**:
-```bash
-uv run pytest tests/test_{module}.py -v
+Claude runs test and **confirms success**:
+```powershell
+uv run pytest tests\\test_{module}.py -v
 ```
 
-#### Step 3: Refactoring (Refactor)
+#### Step 3: Refactoring (Refactor) — Codex
 
 Improve while tests still pass:
 - Remove duplication
 - Improve naming
 - Clean up structure
 
-```bash
-uv run pytest tests/test_{module}.py -v  # Confirm still passes
+Claude runs tests to confirm:
+```powershell
+uv run pytest tests\\test_{module}.py -v  # Confirm still passes
 ```
 
 #### Step 4: Next Test
 
 Return to Step 1 with next test case from the list.
 
-### Phase 3: Completion Check
+### Phase 3: Completion Check (Claude)
 
-```bash
+```powershell
 # Run all tests
 uv run pytest -v
 
@@ -109,7 +114,7 @@ uv run pytest --cov={module} --cov-report=term-missing
 
 ## Notes
 
-- Write tests **first** (not after)
+- Delegate test authoring to Codex; Claude runs and organizes
 - Keep each cycle **small**
 - Refactor **after** tests pass
 - Prioritize **working code** over perfection

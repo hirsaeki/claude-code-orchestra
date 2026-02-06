@@ -14,8 +14,8 @@ Update documentation in `.claude/docs/libraries/` with latest information.
 
 List current library documentation:
 
-```bash
-ls .claude/docs/libraries/
+```powershell
+ls .claude\\docs\\libraries\
 ```
 
 ### 2. Web Search for Latest Info

@@ -28,9 +28,13 @@ Phase 4: Task Creation (Claude)
     ↓
 Phase 5: CLAUDE.md Update (Claude)
     ↓
-[Implementation...]
+Phase 6: Implementation + Tests (Codex)
     ↓
-Phase 6: Multi-Session Review (New Session + Codex)
+Phase 7: Test Organization + Execution (Claude)
+    ↓
+Phase 8: Failure Analysis + Fixes (Codex)
+    ↓
+Phase 9: Multi-Session Review (New Session + Codex)
 ```
 
 ---
@@ -54,7 +58,7 @@ Task tool parameters:
        2. Relevant existing code and patterns
        3. Library recommendations
        4. Technical considerations
-       " --include-directories . 2>/dev/null
+       " --include-directories . 2>$null
 
     2. Save full output to: .claude/docs/research/{feature}.md
 
@@ -92,7 +96,7 @@ Task tool parameters:
     Draft plan: {plan from Phase 2}
 
     1. Call Codex CLI:
-       codex exec --model gpt-5.2-codex --sandbox read-only --full-auto "
+       codex exec --skip-git-repo-check --sandbox read-only --full-auto "
        Review this implementation plan:
        {plan}
 
@@ -101,7 +105,7 @@ Task tool parameters:
        2. Risk analysis
        3. Implementation order
        4. Improvements
-       " 2>/dev/null
+       " 2>$null
 
     2. Return CONCISE summary:
        - Top 3-5 recommendations
@@ -155,7 +159,7 @@ Add to CLAUDE.md:
 
 ---
 
-## Phase 6: Multi-Session Review (Post-Implementation)
+## Phase 9: Multi-Session Review (Post-Implementation)
 
 **実装完了後、別セッションでレビューを実施。**
 
@@ -175,7 +179,7 @@ Task tool parameters:
 
     1. Run: git diff main...HEAD
     2. Call Codex CLI:
-       codex exec --model gpt-5.2-codex --sandbox read-only --full-auto "
+       codex exec --skip-git-repo-check --sandbox read-only --full-auto "
        Review this implementation:
        {diff output}
 
@@ -184,7 +188,7 @@ Task tool parameters:
        2. Potential bugs
        3. Missing edge cases
        4. Security concerns
-       " 2>/dev/null
+       " 2>$null
 
     3. Return findings and recommendations
 ```

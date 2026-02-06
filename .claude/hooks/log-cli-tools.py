@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 """
 PostToolUse hook: Log Codex/Gemini CLI input/output to JSONL file.
 
@@ -20,13 +20,13 @@ LOG_FILE = LOG_DIR / "cli-tools.jsonl"
 
 
 def extract_codex_prompt(command: str) -> str | None:
-    """Extract prompt from codex exec command."""
-    # Pattern: codex exec ... "prompt" or codex exec ... 'prompt'
+    """Extract prompt from codex exec --skip-git-repo-check command."""
+    # Pattern: codex exec --skip-git-repo-check ... "prompt" or codex exec --skip-git-repo-check ... 'prompt'
     patterns = [
         r'codex\s+exec\s+.*?--full-auto\s+"([^"]+)"',
         r"codex\s+exec\s+.*?--full-auto\s+'([^']+)'",
-        r'codex\s+exec\s+.*?"([^"]+)"\s*2>/dev/null',
-        r"codex\s+exec\s+.*?'([^']+)'\s*2>/dev/null",
+        r'codex\s+exec\s+.*?"([^"]+)"\s*2>(?:/dev/null|\$null)',
+        r"codex\s+exec\s+.*?'([^']+)'\s*2>(?:/dev/null|\$null)",
     ]
     for pattern in patterns:
         match = re.search(pattern, command, re.DOTALL)

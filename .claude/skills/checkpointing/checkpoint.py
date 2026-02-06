@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 """
 Checkpoint script: Read CLI logs and update agent context files.
 

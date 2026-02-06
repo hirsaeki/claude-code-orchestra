@@ -42,7 +42,9 @@ ALWAYS consult Codex BEFORE:
 1. **Design decisions** - How to structure code, which pattern to use
 2. **Debugging** - If cause isn't obvious or first fix failed
 3. **Implementation planning** - Multi-step tasks, multiple approaches
-4. **Trade-off evaluation** - Choosing between options
+4. **Implementation (code + tests)** - Any code or test authoring
+5. **Test failure analysis** - Root cause and fix strategy
+6. **Trade-off evaluation** - Choosing between options
 
 ### Trigger Phrases (User Input)
 
@@ -54,16 +56,18 @@ Consult Codex when user says:
 | 「なぜ動かない？」「原因は？」「エラーが出る」 | "Why doesn't this work?" "Error" |
 | 「どちらがいい？」「比較して」「トレードオフは？」 | "Which is better?" "Compare" |
 | 「〜を作りたい」「〜を実装して」 | "Build X" "Implement X" |
+| 「テストを書いて」「テストを作って」 | "Write tests" "Create tests" |
+| 「テストが落ちた」「原因は？」 | "Tests failed" "Root cause?" |
 | 「考えて」「分析して」「深く考えて」 | "Think" "Analyze" "Think deeper" |
 
 ## When NOT to Consult
 
 Skip Codex for simple, straightforward tasks:
 
-- Simple file edits (typo fixes, small changes)
-- Following explicit user instructions
+- Simple documentation edits (typo fixes, wording)
+- Following explicit user instructions that do not change code/tests
 - Standard operations (git commit, running tests)
-- Tasks with clear, single solutions
+- Non-code tasks with clear, single solutions
 - Reading/searching files
 
 ## Quick Check
@@ -89,9 +93,9 @@ Task tool parameters:
     {Task description}
 
     Call Codex CLI:
-    codex exec --model gpt-5.2-codex --sandbox read-only --full-auto "
+    codex exec --skip-git-repo-check --sandbox read-only --full-auto "
     {Question for Codex}
-    " 2>/dev/null
+    " 2>$null
 
     Return CONCISE summary:
     - Key recommendation
@@ -105,9 +109,9 @@ Only use direct Bash call when:
 - Quick, simple question (< 1 paragraph response expected)
 - Subagent overhead not justified
 
-```bash
+```powershell
 # Only for simple queries
-codex exec --model gpt-5.2-codex --sandbox read-only --full-auto "Brief question" 2>/dev/null
+codex exec --skip-git-repo-check --sandbox read-only --full-auto "Brief question" 2>$null
 ```
 
 ### Sandbox Modes

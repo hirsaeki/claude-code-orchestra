@@ -31,8 +31,8 @@ Both tools are called via Bash tool, so output is visible in Claude Code UI, but
 ```
 ┌──────────────────────────────────────────────────┐
 │  Claude Code calls Bash tool                     │
-│  → codex exec ... "prompt" 2>/dev/null           │
-│  → gemini -p "prompt" 2>/dev/null                │
+│  → codex exec --skip-git-repo-check ... "prompt" 2>$null           │
+│  → gemini -p "prompt" 2>$null                │
 └──────────────────────────────────────────────────┘
                     ↓
 ┌──────────────────────────────────────────────────┐
@@ -73,7 +73,7 @@ Each line is a complete JSON object:
 ### 2. Hook Implementation: `log-cli-tools.py`
 
 ```python
-#!/usr/bin/env python3
+#!/usr/bin/env python
 """
 PostToolUse hook: Log Codex/Gemini CLI input/output.
 """
@@ -88,7 +88,7 @@ LOG_FILE = Path(__file__).parent.parent / "logs" / "cli-tools.jsonl"
 
 def extract_codex_prompt(command: str) -> dict | None:
     """Extract prompt from codex command."""
-    # Match: codex exec --model MODEL --sandbox SANDBOX --full-auto "PROMPT"
+    # Match: codex exec --skip-git-repo-check --sandbox SANDBOX --full-auto "PROMPT"
     match = re.search(
         r'codex\s+exec\s+.*?--model\s+([^\s]+).*?--sandbox\s+([^\s]+).*?--full-auto\s+["\'](.+?)["\']',
         command,
@@ -170,7 +170,7 @@ Add to `PostToolUse` hooks:
   "hooks": [
     {
       "type": "command",
-      "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/log-cli-tools.py\"",
+      "command": "python \"$CLAUDE_PROJECT_DIR/.claude/hooks/log-cli-tools.py\"",
       "timeout": 5
     }
   ]
@@ -198,28 +198,28 @@ Add to `PostToolUse` hooks:
 ### 5. Querying Logs
 
 **View recent calls:**
-```bash
-tail -20 .claude/logs/cli-tools.jsonl | jq '.'
+```powershell
+tail -20 .claude\\logs\cli-tools.jsonl | jq '.'
 ```
 
 **Filter by tool:**
-```bash
-jq 'select(.tool == "codex")' .claude/logs/cli-tools.jsonl
+```powershell
+jq 'select(.tool == "codex")' .claude\\logs\cli-tools.jsonl
 ```
 
 **Count calls per tool:**
-```bash
-jq -r '.tool' .claude/logs/cli-tools.jsonl | sort | uniq -c
+```powershell
+jq -r '.tool' .claude\\logs\cli-tools.jsonl | sort | uniq -c
 ```
 
 **Search prompts:**
-```bash
-jq 'select(.prompt | contains("design"))' .claude/logs/cli-tools.jsonl
+```powershell
+jq 'select(.prompt | contains("design"))' .claude\\logs\cli-tools.jsonl
 ```
 
 **Failed calls only:**
-```bash
-jq 'select(.success == false)' .claude/logs/cli-tools.jsonl
+```powershell
+jq 'select(.success == false)' .claude\\logs\cli-tools.jsonl
 ```
 
 ## Alternative Approaches Considered
@@ -274,9 +274,9 @@ Estimated growth:
 - 30 days: ~1.5 MB/month
 
 **Rotation strategy** (if needed):
-```bash
+```powershell
 # Manual rotation
-mv .claude/logs/cli-tools.jsonl .claude/logs/cli-tools-$(date +%Y%m).jsonl
+mv .claude\\logs\cli-tools.jsonl .claude\\logs\cli-tools-$(date +%Y%m).jsonl
 ```
 
 ### Hook Timeout
@@ -338,8 +338,8 @@ Add context:
 ### 2. Log Viewer UI
 
 Simple Python script:
-```bash
-python .claude/tools/view-logs.py
+```powershell
+python .claude\\tools\view-logs.py
 # → Opens TUI for browsing logs
 ```
 
@@ -354,8 +354,8 @@ Track:
 ### 4. Export to SQLite
 
 For complex queries:
-```bash
-python .claude/tools/export-logs-to-db.py
+```powershell
+python .claude\\tools\export-logs-to-db.py
 # → Creates cli-tools.db
 ```
 
@@ -374,7 +374,7 @@ python .claude/tools/export-logs-to-db.py
 ### Unit Tests
 ```python
 def test_extract_codex_prompt():
-    cmd = 'codex exec --model gpt-5.2-codex --sandbox read-only --full-auto "test prompt"'
+    cmd = 'codex exec --skip-git-repo-check --sandbox read-only --full-auto "test prompt"'
     result = extract_codex_prompt(cmd)
     assert result["tool"] == "codex"
     assert result["prompt"] == "test prompt"

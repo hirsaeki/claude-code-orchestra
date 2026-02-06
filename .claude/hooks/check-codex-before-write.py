@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 """
 PreToolUse hook: Check if Codex consultation is recommended before Write/Edit.
 
@@ -127,7 +127,7 @@ def main():
                         "**Recommended**: Use Task tool with subagent_type='general-purpose' "
                         "to preserve main context. "
                         "(Direct call OK for quick questions: "
-                        "`codex exec --model gpt-5.2-codex --sandbox read-only --full-auto '...'`)"
+                        "`codex exec --skip-git-repo-check --sandbox read-only --full-auto '...'`)"
                     )
                 }
             }

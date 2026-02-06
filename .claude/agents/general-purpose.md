@@ -53,12 +53,12 @@ You handle tasks that preserve the main orchestrator's context:
 
 When design decisions, debugging, or deep analysis is needed:
 
-```bash
+```powershell
 # Analysis (read-only)
-codex exec --model gpt-5.2-codex --sandbox read-only --full-auto "{question}" 2>/dev/null
+codex exec --skip-git-repo-check --sandbox read-only --full-auto "{question}" 2>$null
 
 # Implementation work (can write files)
-codex exec --model gpt-5.2-codex --sandbox workspace-write --full-auto "{task}" 2>/dev/null
+codex exec --skip-git-repo-check --sandbox workspace-write --full-auto "{task}" 2>$null
 ```
 
 **When to call Codex:**
@@ -71,15 +71,15 @@ codex exec --model gpt-5.2-codex --sandbox workspace-write --full-auto "{task}" 
 
 When research or large-scale analysis is needed:
 
-```bash
+```powershell
 # Research
-gemini -p "{research question}" 2>/dev/null
+gemini -p "{research question}" 2>$null
 
 # Codebase analysis
-gemini -p "{question}" --include-directories . 2>/dev/null
+gemini -p "{question}" --include-directories . 2>$null
 
 # Multimodal (PDF, video, audio)
-gemini -p "{extraction prompt}" < /path/to/file 2>/dev/null
+gemini -p "{extraction prompt}" < C:\path\to\file 2>$null
 ```
 
 **When to call Gemini:**

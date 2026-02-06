@@ -6,7 +6,7 @@ Project development environment and toolchain.
 
 **Do not use pip directly. All commands must go through uv.**
 
-```bash
+```powershell
 # Add packages
 uv add <package>
 uv add --dev <package>    # Dev dependency
@@ -39,7 +39,7 @@ dev = [
 
 ## Linting & Formatting: ruff
 
-```bash
+```powershell
 # Check
 uv run ruff check .
 
@@ -74,9 +74,9 @@ quote-style = "double"
 
 ## Type Checking: ty
 
-```bash
+```powershell
 # Run type check
-uv run ty check src/
+uv run ty check src\\
 ```
 
 ### ty Features
@@ -89,7 +89,7 @@ uv run ty check src/
 
 Interactive Python notebook environment.
 
-```bash
+```powershell
 # Create/edit notebook
 uv run marimo edit notebook.py
 
@@ -134,17 +134,17 @@ all = ["lint", "typecheck", "test"]
 
 ## Common Commands
 
-```bash
+```powershell
 # Initialize
 uv init
 uv venv
-source .venv/bin/activate
+.\\.venv\\Scripts\\Activate.ps1
 
 # Install dev dependencies
 uv sync --all-extras
 
 # Quality check (all)
-uv run ruff check . && uv run ruff format --check . && uv run ty check src/ && uv run pytest
+uv run ruff check . && uv run ruff format --check . && uv run ty check src\\ && uv run pytest
 
 # Or via poe
 poe all

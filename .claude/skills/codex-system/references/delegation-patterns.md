@@ -37,27 +37,25 @@
 
 ### Pattern 1: アーキテクチャレビュー
 
-```bash
-codex exec \
-  --model gpt-5-codex \
+```powershell
+codex exec --skip-git-repo-check \
   --config model_reasoning_effort="high" \
   --sandbox read-only \
   --full-auto \
-  "Review the architecture of src/auth/ module. Focus on:
+  "Review the architecture of src\\auth\ module. Focus on:
    1. Single Responsibility adherence
    2. Dependency direction (should flow inward)
    3. Interface design clarity
    4. Extensibility for future auth providers
 
-   Related files: src/auth/**/*.py
-   Constraints: Must maintain backward compatibility" 2>/dev/null
+   Related files: src\\auth\**\*.py
+   Constraints: Must maintain backward compatibility" 2>$null
 ```
 
 ### Pattern 2: 失敗ベース委譲
 
-```bash
-codex exec \
-  --model gpt-5-codex \
+```powershell
+codex exec --skip-git-repo-check \
   --config model_reasoning_effort="high" \
   --sandbox read-only \
   --full-auto \
@@ -72,18 +70,17 @@ codex exec \
    Please analyze from fresh perspective:
    - What root cause might we be missing?
    - Are there architectural issues causing this?
-   - What alternative approaches should we consider?" 2>/dev/null
+   - What alternative approaches should we consider?" 2>$null
 ```
 
 ### Pattern 3: パフォーマンス最適化
 
-```bash
-codex exec \
-  --model gpt-5-codex \
+```powershell
+codex exec --skip-git-repo-check \
   --config model_reasoning_effort="xhigh" \
   --sandbox read-only \
   --full-auto \
-  "Optimize the algorithm in src/data/aggregator.py:
+  "Optimize the algorithm in src\\data\aggregator.py:
 
    Current: O(n²) nested loops for data aggregation
    Target: O(n log n) or better
@@ -96,18 +93,17 @@ codex exec \
    Provide:
    1. Optimized implementation
    2. Complexity analysis
-   3. Benchmark comparison approach" 2>/dev/null
+   3. Benchmark comparison approach" 2>$null
 ```
 
 ### Pattern 4: セキュリティ監査
 
-```bash
-codex exec \
-  --model gpt-5-codex \
+```powershell
+codex exec --skip-git-repo-check \
   --config model_reasoning_effort="xhigh" \
   --sandbox read-only \
   --full-auto \
-  "Security audit of src/api/auth.py:
+  "Security audit of src\\api\auth.py:
 
    Check for:
    - SQL injection vulnerabilities
@@ -121,7 +117,7 @@ codex exec \
    - CRITICAL: Must fix immediately
    - HIGH: Fix before release
    - MEDIUM: Address in next sprint
-   - LOW: Tech debt" 2>/dev/null
+   - LOW: Tech debt" 2>$null
 ```
 
 ## 委譲しないケース

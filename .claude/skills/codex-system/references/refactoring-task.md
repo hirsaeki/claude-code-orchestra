@@ -61,13 +61,13 @@ Provide:
 
 ## Example Invocation
 
-```bash
-codex exec --model gpt-5.2-codex --sandbox workspace-write --full-auto "
+```powershell
+codex exec --skip-git-repo-check --sandbox workspace-write --full-auto "
 Refactor this code for simplicity:
 
 ## Target Code
-File: src/services/llm_client.py
-$(cat src/services/llm_client.py)
+File: src\\services\llm_client.py
+$(cat src\\services\llm_client.py)
 
 ## Libraries Used
 - openai: async client, retry with exponential backoff
@@ -79,7 +79,7 @@ $(cat src/services/llm_client.py)
 - Improve naming
 
 [Principles and patterns as above...]
-" 2>/dev/null
+" 2>$null
 ```
 
 ## Checklist

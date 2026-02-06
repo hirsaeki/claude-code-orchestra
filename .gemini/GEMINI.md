@@ -50,9 +50,9 @@ This allows Claude Code and Codex to reference your findings.
 
 ## How You're Called
 
-```bash
-gemini -p "{research question}" 2>/dev/null
-gemini -p "{question}" < file.pdf 2>/dev/null
+```powershell
+gemini -p "{research question}" 2>$null
+gemini -p "{question}" < file.pdf 2>$null
 ```
 
 ## Output Format

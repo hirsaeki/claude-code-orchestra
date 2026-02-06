@@ -2,6 +2,15 @@
 
 Guidelines for writing tests.
 
+## Responsibility Split
+
+- **Codex**: Write and update test code, propose fixtures and mocks
+- **Claude Code**: Organize test suites, run tests, and report results
+- **Codex**: Analyze test failures and propose fixes
+
+When tests need to be authored or changed, delegate to Codex. Claude focuses on execution and coordination.
+Share raw test output (with brief context) back to Codex for analysis.
+
 ## Core Principles
 
 - **TDD recommended**: Write tests first
@@ -80,15 +89,15 @@ def db_session():
 
 ## Commands
 
-```bash
+```powershell
 # All tests
 uv run pytest -v
 
 # Specific file
-uv run pytest tests/test_user.py -v
+uv run pytest tests\\test_user.py -v
 
 # Specific test
-uv run pytest tests/test_user.py::test_create_user -v
+uv run pytest tests\\test_user.py::test_create_user -v
 
 # With coverage
 uv run pytest --cov=src --cov-report=term-missing

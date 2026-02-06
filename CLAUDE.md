@@ -10,8 +10,8 @@ Claude Code が Codex CLI（深い推論）と Gemini CLI（大規模リサー�
 
 | Agent | Strength | Use For |
 |-------|----------|---------|
-| **Claude Code** | オーケストレーション、ユーザー対話 | 全体統括、タスク管理 |
-| **Codex CLI** | 深い推論、設計判断、デバッグ | 設計相談、エラー分析、トレードオフ評価 |
+| **Claude Code** | オーケストレーション、ユーザー対話 | 全体統括、タスク管理、テスト実行 |
+| **Codex CLI** | 深い推論、設計判断、デバッグ | 設計相談、実装、テストコード作成、失敗解析 |
 | **Gemini CLI** | 1Mトークン、マルチモーダル、Web検索 | コードベース全体分析、ライブラリ調査、PDF/動画処理 |
 
 **IMPORTANT**: 単体では難しいタスクも、3エージェントの協調で解決できる。
@@ -35,7 +35,7 @@ Claude Code のコンテキストは **200k トークン** だが、ツール定
 Task(subagent_type="general-purpose", prompt="Codexに設計を相談し、要約を返して")
 
 # OK: 直接呼び出し（小さな出力のみ）
-Bash("codex exec ... '1文で答えて'")
+Bash("codex exec --skip-git-repo-check ... '1文で答えて'")
 ```
 
 ---
@@ -45,8 +45,31 @@ Bash("codex exec ... '1文で答えて'")
 ### Codex を使う時
 
 - 設計判断（「どう実装？」「どのパターン？」）
+- 実装（プロダクションコード/テストコード）
+- テスト失敗の原因分析
 - デバッグ（「なぜ動かない？」「エラーの原因は？」）
 - 比較検討（「AとBどちらがいい？」）
+
+### Codex 呼び出しテンプレ（実装/テスト作成）
+
+大きな出力が見込まれるため **サブエージェント経由** を使う。
+
+```
+Task(subagent_type="general-purpose", prompt="
+実装とテスト作成をCodexに依頼する。
+
+codex exec --skip-git-repo-check --sandbox workspace-write --full-auto \"
+{Implement task in English. Include files to modify and tests to add.}
+\"
+
+Return CONCISE summary:
+- Files changed
+- Tests added/updated
+- Risks or follow-ups
+")
+```
+
+短い質問・小さな修正のみ、直接呼び出しも可。
 
 → 詳細: `.claude/rules/codex-delegation.md`
 
@@ -70,9 +93,19 @@ Bash("codex exec ... '1文で答えて'")
 2. Claude が要件ヒアリング・計画作成
 3. Codex が計画レビュー（サブエージェント経由）
 4. Claude がタスクリスト作成
-5. **別セッションで実装後レビュー**（推奨）
+5. Codex が実装とテストコード作成
+6. Claude がテスト整理・実行
+7. Codex がテスト結果を分析して修正方針を提示
+8. 必要に応じて 5-7 を反復
 
 → 詳細: `/startproject`, `/plan`, `/tdd` skills
+
+### Planning Tagging Rule
+
+`/startproject` と `/plan` のタスクは、各ステップに担当を明記する。
+
+- (Codex): 実装・テストコード作成・失敗分析
+- (Claude): テスト整理・実行・調整
 
 ---
 

@@ -10,6 +10,12 @@ Create an implementation plan for $ARGUMENTS.
 
 ## Planning Process
 
+### Responsibility Split
+
+- **Codex**: Implementation and test authoring
+- **Claude Code**: Test organization and execution
+- **Codex**: Failure analysis and fix strategy
+
 ### 1. Requirements Analysis
 
 First clarify:
@@ -73,3 +79,4 @@ Break into small steps:
 - Include verification method for each step
 - Ask questions at planning stage for unclear points
 - Don't over-detail (adjust during implementation)
+- Tag each step with the responsible agent: (Codex) or (Claude)

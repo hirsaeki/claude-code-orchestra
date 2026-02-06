@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 """
 Post-tool hook: Run formatter and type checker on Python files after Edit/Write.
 

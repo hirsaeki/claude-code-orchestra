@@ -58,9 +58,9 @@ Task tool parameters:
 - prompt: |
     Consult Codex about: {topic}
 
-    codex exec --model gpt-5.2-codex --sandbox read-only --full-auto "
+    codex exec --skip-git-repo-check --sandbox read-only --full-auto "
     {question for Codex}
-    " 2>/dev/null
+    " 2>$null
 
     Return CONCISE summary (key recommendation + rationale).
 ```
@@ -69,8 +69,8 @@ Task tool parameters:
 
 For quick questions expecting 1-2 sentence answers:
 
-```bash
-codex exec --model gpt-5.2-codex --sandbox read-only --full-auto "Brief question" 2>/dev/null
+```powershell
+codex exec --skip-git-repo-check --sandbox read-only --full-auto "Brief question" 2>$null
 ```
 
 ### Workflow (Subagent)
@@ -97,8 +97,8 @@ codex exec --model gpt-5.2-codex --sandbox read-only --full-auto "Brief question
 
 ### Design Review
 
-```bash
-codex exec --model gpt-5.2-codex --sandbox read-only --full-auto "
+```powershell
+codex exec --skip-git-repo-check --sandbox read-only --full-auto "
 Review this design approach for: {feature}
 
 Context:
@@ -109,13 +109,13 @@ Evaluate:
 2. Alternative approaches?
 3. Potential issues?
 4. Recommendations?
-" 2>/dev/null
+" 2>$null
 ```
 
 ### Debug Analysis
 
-```bash
-codex exec --model gpt-5.2-codex --sandbox read-only --full-auto "
+```powershell
+codex exec --skip-git-repo-check --sandbox read-only --full-auto "
 Debug this issue:
 
 Error: {error message}
@@ -123,7 +123,7 @@ Code: {relevant code}
 Context: {what was happening}
 
 Analyze root cause and suggest fixes.
-" 2>/dev/null
+" 2>$null
 ```
 
 ### Code Review

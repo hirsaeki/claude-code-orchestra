@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 """
 UserPromptSubmit hook: Route to appropriate agent based on user intent.
 
@@ -16,6 +16,7 @@ CODEX_TRIGGERS = {
         "なぜ動かない", "エラー", "バグ", "デバッグ",
         "どちらがいい", "比較して", "トレードオフ",
         "実装方法", "どう実装",
+        "テスト", "テストを書く", "テスト作成", "テスト追加", "テストが落ちた",
         "リファクタリング", "リファクタ",
         "レビュー", "見て",
         "考えて", "分析して", "深く",
@@ -25,6 +26,7 @@ CODEX_TRIGGERS = {
         "debug", "error", "bug", "not working", "fails",
         "compare", "trade-off", "tradeoff", "which is better",
         "how to implement", "implementation",
+        "test", "tests", "write tests", "test writing", "testing",
         "refactor", "simplify",
         "review", "check this",
         "think", "analyze", "deeply",
@@ -87,8 +89,11 @@ def main():
                     "additionalContext": (
                         f"[Agent Routing] Detected '{trigger}' - this task may benefit from "
                         "Codex CLI's deep reasoning capabilities. Consider: "
-                        "`codex exec --model gpt-5.2-codex --sandbox read-only --full-auto "
-                        '"{task description}"` for design decisions, debugging, or complex analysis.'
+                        "`codex exec --skip-git-repo-check --sandbox read-only --full-auto "
+                        '"{task description}"` for design decisions, debugging, or complex analysis. '
+                        "For implementation or test authoring, prefer: "
+                        "`codex exec --skip-git-repo-check --sandbox workspace-write --full-auto "
+                        '"{task description}"`.'
                     )
                 }
             }
@@ -101,7 +106,7 @@ def main():
                     "additionalContext": (
                         f"[Agent Routing] Detected '{trigger}' - this task may benefit from "
                         "Gemini CLI's research capabilities. Consider: "
-                        '`gemini -p "Research: {topic}" 2>/dev/null` '
+                        '`gemini -p "Research: {topic}" 2>$null` '
                         "for documentation, library research, or multimodal content."
                     )
                 }

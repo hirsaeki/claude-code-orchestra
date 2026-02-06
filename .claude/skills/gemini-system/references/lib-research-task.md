@@ -55,7 +55,7 @@ Output documentation content in Japanese.
 
 ## Example Invocation
 
-```bash
+```powershell
 # Basic library research
 gemini -p "Research the library 'httpx' comprehensively.
 
@@ -66,7 +66,7 @@ Use Google Search to find:
 - Latest blog posts, tutorials (2024-2025)
 
 [Template structure as above...]
-" 2>/dev/null
+" 2>$null
 
 # Research with specific focus
 gemini -p "Research 'pydantic' v2 with focus on:
@@ -76,14 +76,14 @@ gemini -p "Research 'pydantic' v2 with focus on:
 - Breaking changes
 
 [Template structure as above...]
-" 2>/dev/null
+" 2>$null
 ```
 
 ## Workflow
 
 1. **Run Gemini research** (background)
-   ```bash
-   gemini -p "Research: {library}" 2>/dev/null
+   ```powershell
+   gemini -p "Research: {library}" 2>$null
    ```
 
 2. **Save output to docs**

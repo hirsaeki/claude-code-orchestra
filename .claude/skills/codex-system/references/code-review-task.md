@@ -67,8 +67,8 @@ Well-implemented points
 
 ## Example Invocation
 
-```bash
-codex exec --model gpt-5.2-codex --sandbox read-only --full-auto "
+```powershell
+codex exec --skip-git-repo-check --sandbox read-only --full-auto "
 Review this code change:
 
 ## Changes
@@ -83,7 +83,7 @@ $(git diff HEAD~1)
 - pydantic: Use Field() for validation, avoid root validators
 
 [Review checklist as above...]
-" 2>/dev/null
+" 2>$null
 ```
 
 ## When to Use

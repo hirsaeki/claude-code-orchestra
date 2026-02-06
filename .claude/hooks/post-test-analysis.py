@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 """
 PostToolUse hook: Suggest Codex analysis after test/build failures.
 
