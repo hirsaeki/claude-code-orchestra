@@ -15,7 +15,11 @@ Claude Code (Orchestrator) ─┬─ Codex CLI (Deep Reasoning)
 既存プロジェクトのルートで実行:
 
 ```bash
-git clone --depth 1 https://github.com/DeL-TaiseiOzaki/claude-code-orchestra.git .starter && cp -r .starter/.claude .starter/.codex .starter/.gemini .starter/CLAUDE.md . && rm -rf .starter && claude
+git clone --depth 1 https://github.com/hirsaeki/claude-code-orchestra.git .starter && cp -r .starter/.claude .starter/.codex .starter/.gemini .starter/CLAUDE.md . && rm -rf .starter && claude
+```
+
+```powershell
+git clone --depth 1 https://github.com/hirsaeki/claude-code-orchestra.git .starter; Copy-Item -Recurse .starter\.claude, .starter\.codex, .starter\.gemini, .starter\CLAUDE.md .; Remove-Item -Recurse -Force .starter; claude
 ```
 
 ## Prerequisites
@@ -47,7 +51,7 @@ gemini login
 ┌─────────────────────────────────────────────────────────────┐
 │           Claude Code (Orchestrator)                        │
 │           → コンテキスト節約が最優先                         │
-│           → ユーザー対話・調整・実行を担当                   │
+│           → ユーザー対話・調整・テスト実行を担当             │
 │                      ↓                                      │
 │  ┌───────────────────────────────────────────────────────┐  │
 │  │              Subagent (general-purpose)               │  │
@@ -57,8 +61,8 @@ gemini login
 │  │                                                       │  │
 │  │   ┌──────────────┐        ┌──────────────┐           │  │
 │  │   │  Codex CLI   │        │  Gemini CLI  │           │  │
-│  │   │  設計・推論  │        │  リサーチ    │           │  │
-│  │   │  デバッグ    │        │  マルチモーダル│          │  │
+│  │   │  設計・実装  │        │  リサーチ    │           │  │
+│  │   │  テスト作成/解析 │     │  マルチモーダル│          │  │
 │  │   └──────────────┘        └──────────────┘           │  │
 │  └───────────────────────────────────────────────────────┘  │
 └─────────────────────────────────────────────────────────────┘
@@ -139,6 +143,9 @@ gemini login
 2. **Claude** → 要件ヒアリング・計画作成
 3. **Codex** → 計画レビュー・リスク分析
 4. **Claude** → タスクリスト作成
+5. **Codex** → 実装・テストコード作成
+6. **Claude** → テスト整理・実行
+7. **Codex** → テスト結果の分析・修正方針提示
 
 ### `/plan` — 実装計画
 
@@ -163,9 +170,11 @@ Red-Green-Refactorサイクルで実装します。
 
 **ワークフロー:**
 1. テストケース設計
-2. 失敗するテスト作成（Red）
-3. 最小限の実装（Green）
-4. リファクタリング（Refactor）
+2. Codex が失敗するテスト作成（Red）
+3. Codex が最小限の実装（Green）
+4. Claude がテスト整理・実行
+5. Codex が失敗分析・修正
+6. リファクタリング（Refactor）
 
 ### `/checkpointing` — セッション永続化
 
@@ -185,6 +194,7 @@ Red-Green-Refactorサイクルで実装します。
 - 「どう設計すべき？」「どう実装する？」
 - 「なぜ動かない？」「エラーが出る」
 - 「どちらがいい？」「比較して」
+- 「テストを書いて」「テストが落ちた」
 
 ### `/gemini-system` — Gemini CLI連携
 
