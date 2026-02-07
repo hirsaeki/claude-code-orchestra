@@ -22,8 +22,9 @@ def validate_input(file_path: str, content: str) -> bool:
         return False
     if len(content) > MAX_CONTENT_LENGTH:
         return False
-    # Check for path traversal
-    if ".." in file_path:
+    # Check for path traversal (cross-platform)
+    normalized = file_path.replace("\\", "/")
+    if ".." in normalized:
         return False
     return True
 
@@ -72,16 +73,17 @@ def should_suggest_codex(file_path: str, content: str | None = None) -> tuple[bo
     """Determine if Codex consultation should be suggested."""
     path = Path(file_path)
     filename = path.name.lower()
-    filepath_lower = file_path.lower()
+    # Normalize path separators for cross-platform matching
+    filepath_norm = file_path.lower().replace("\\", "/")
 
     # Skip simple edits
     for pattern in SIMPLE_EDIT_PATTERNS:
-        if pattern.lower() in filepath_lower:
+        if pattern.lower() in filepath_norm:
             return False, ""
 
     # Check file path for design indicators
     for indicator in DESIGN_INDICATORS:
-        if indicator.lower() in filepath_lower:
+        if indicator.lower() in filepath_norm:
             return True, f"File path contains '{indicator}' - likely a design decision"
 
     # Check content if available
@@ -96,7 +98,7 @@ def should_suggest_codex(file_path: str, content: str | None = None) -> tuple[bo
                 return True, f"Content contains '{indicator}' - likely architectural code"
 
     # New files in src/ directory
-    if "/src/" in file_path or file_path.startswith("src/"):
+    if "/src/" in filepath_norm or filepath_norm.startswith("src/"):
         if content and len(content) > 200:
             return True, "New source file - consider design review"
 

@@ -95,7 +95,7 @@ Task tool parameters:
     Call Codex CLI:
     codex exec --skip-git-repo-check --sandbox read-only --full-auto "
     {Question for Codex}
-    " 2>$null
+    " 2>$null 
 
     Return CONCISE summary:
     - Key recommendation
@@ -111,7 +111,7 @@ Only use direct Bash call when:
 
 ```powershell
 # Only for simple queries
-codex exec --skip-git-repo-check --sandbox read-only --full-auto "Brief question" 2>$null
+codex exec --skip-git-repo-check --sandbox read-only --full-auto "Brief question" 2>$null 
 ```
 
 ### Sandbox Modes

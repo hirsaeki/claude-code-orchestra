@@ -72,7 +72,7 @@ codex exec --skip-git-repo-check --sandbox read-only --full-auto "
 Review this code change:
 
 ## Changes
-$(git diff HEAD~1)
+{paste output of: git diff HEAD~1}
 
 ## Libraries Used
 - httpx (async HTTP client)

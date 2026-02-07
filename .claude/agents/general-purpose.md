@@ -58,7 +58,7 @@ When design decisions, debugging, or deep analysis is needed:
 codex exec --skip-git-repo-check --sandbox read-only --full-auto "{question}" 2>$null
 
 # Implementation work (can write files)
-codex exec --skip-git-repo-check --sandbox workspace-write --full-auto "{task}" 2>$null
+codex exec --skip-git-repo-check --sandbox workspace-write --full-auto "{task}" 2>$null 
 ```
 
 **When to call Codex:**
@@ -78,8 +78,8 @@ gemini -p "{research question}" 2>$null
 # Codebase analysis
 gemini -p "{question}" --include-directories . 2>$null
 
-# Multimodal (PDF, video, audio)
-gemini -p "{extraction prompt}" < C:\path\to\file 2>$null
+# Multimodal (PDF, video, audio) - use --file option or pipe via cmd/WSL
+gemini -p "{extraction prompt}" --file "C:\path\to\file" 2>$null 
 ```
 
 **When to call Gemini:**

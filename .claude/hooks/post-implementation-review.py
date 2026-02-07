@@ -9,6 +9,7 @@ code has been written.
 import json
 import os
 import sys
+import tempfile
 
 # Input validation constants
 MAX_PATH_LENGTH = 4096
@@ -21,14 +22,15 @@ def validate_input(file_path: str, content: str) -> bool:
         return False
     if len(content) > MAX_CONTENT_LENGTH:
         return False
-    # Check for path traversal
-    if ".." in file_path:
+    # Check for path traversal (cross-platform)
+    normalized = file_path.replace("\\", "/")
+    if ".." in normalized:
         return False
     return True
 
 
 # State file to track changes in this session
-STATE_FILE = "/tmp/claude-code-implementation-state.json"
+STATE_FILE = os.path.join(tempfile.gettempdir(), "claude-code-implementation-state.json")
 
 # Thresholds for suggesting review
 MIN_FILES_FOR_REVIEW = 3

@@ -31,8 +31,8 @@ Both tools are called via Bash tool, so output is visible in Claude Code UI, but
 ```
 ┌──────────────────────────────────────────────────┐
 │  Claude Code calls Bash tool                     │
-│  → codex exec --skip-git-repo-check ... "prompt" 2>$null           │
-│  → gemini -p "prompt" 2>$null                │
+│  → codex exec --skip-git-repo-check ... "prompt" 2>$null    │
+│  → gemini -p "prompt" 2>$null                               │
 └──────────────────────────────────────────────────┘
                     ↓
 ┌──────────────────────────────────────────────────┐
@@ -275,8 +275,8 @@ Estimated growth:
 
 **Rotation strategy** (if needed):
 ```powershell
-# Manual rotation
-mv .claude\\logs\cli-tools.jsonl .claude\\logs\cli-tools-$(date +%Y%m).jsonl
+# Manual rotation (PowerShell)
+Move-Item .claude\logs\cli-tools.jsonl ".claude\logs\cli-tools-$(Get-Date -Format 'yyyyMM').jsonl"
 ```
 
 ### Hook Timeout
@@ -374,7 +374,7 @@ python .claude\\tools\export-logs-to-db.py
 ### Unit Tests
 ```python
 def test_extract_codex_prompt():
-    cmd = 'codex exec --skip-git-repo-check --sandbox read-only --full-auto "test prompt"'
+    cmd = 'codex exec --skip-git-repo-check --sandbox read-only --full-auto "test prompt" 2>$null'
     result = extract_codex_prompt(cmd)
     assert result["tool"] == "codex"
     assert result["prompt"] == "test prompt"

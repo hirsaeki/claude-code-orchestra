@@ -66,8 +66,8 @@ codex exec --skip-git-repo-check --sandbox workspace-write --full-auto "
 Refactor this code for simplicity:
 
 ## Target Code
-File: src\\services\llm_client.py
-$(cat src\\services\llm_client.py)
+File: src\services\llm_client.py
+{paste contents of: src\services\llm_client.py}
 
 ## Libraries Used
 - openai: async client, retry with exponential backoff

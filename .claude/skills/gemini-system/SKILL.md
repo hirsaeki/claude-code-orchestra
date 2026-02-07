@@ -89,7 +89,7 @@ gemini -p "Brief question" 2>$null
 gemini -p "{question}" --include-directories . 2>$null
 
 # Multimodal (PDF/video/audio)
-gemini -p "{prompt}" < C:\path\to\file.pdf 2>$null
+gemini -p "{prompt}" --file "C:\path\to\file.pdf" 2>$null
 
 # JSON output
 gemini -p "{question}" --output-format json 2>$null
@@ -151,13 +151,13 @@ See: `references/lib-research-task.md`
 
 ```powershell
 # Video
-gemini -p "Analyze video: main concepts, key points, timestamps" < tutorial.mp4 2>$null
+gemini -p "Analyze video: main concepts, key points, timestamps" --file "tutorial.mp4" 2>$null
 
 # PDF
-gemini -p "Extract: API specs, examples, constraints" < api-docs.pdf 2>$null
+gemini -p "Extract: API specs, examples, constraints" --file "api-docs.pdf" 2>$null
 
 # Audio
-gemini -p "Transcribe and summarize: decisions, action items" < meeting.mp3 2>$null
+gemini -p "Transcribe and summarize: decisions, action items" --file "meeting.mp3" 2>$null
 ```
 
 ## Integration with Codex

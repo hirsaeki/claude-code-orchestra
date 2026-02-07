@@ -53,10 +53,10 @@ gemini -p "Analyze this tutorial video:
 - Summarize the main concepts taught
 - List step-by-step instructions
 - Note any important warnings or tips
-- Identify timestamps for key sections" < tutorial.mp4 2>$null
+- Identify timestamps for key sections" --file "tutorial.mp4" 2>$null
 
 # Code review video
-gemini -p "Extract code patterns and best practices demonstrated in this video" < code-review.mp4 2>$null
+gemini -p "Extract code patterns and best practices demonstrated in this video" --file "code-review.mp4" 2>$null
 ```
 
 #### Audio Analysis
@@ -67,10 +67,10 @@ gemini -p "Transcribe and summarize this technical discussion:
 - Key decisions made
 - Action items
 - Open questions
-- Technical terms mentioned" < meeting.mp3 2>$null
+- Technical terms mentioned" --file "meeting.mp3" 2>$null
 
 # Podcast/talk analysis
-gemini -p "Extract technical insights from this talk about {topic}" < conference-talk.mp3 2>$null
+gemini -p "Extract technical insights from this talk about {topic}" --file "conference-talk.mp3" 2>$null
 ```
 
 #### PDF Analysis
@@ -81,21 +81,21 @@ gemini -p "Extract from this API documentation:
 - All available endpoints
 - Request/response schemas
 - Authentication requirements
-- Rate limiting rules" < api-spec.pdf 2>$null
+- Rate limiting rules" --file "api-spec.pdf" 2>$null
 
 # Technical specification
 gemini -p "Summarize this technical specification:
 - Core requirements
 - Constraints
 - Interface definitions
-- Edge cases to handle" < spec.pdf 2>$null
+- Edge cases to handle" --file "spec.pdf" 2>$null
 
 # Research paper
 gemini -p "Analyze this paper and explain:
 - Problem being solved
 - Proposed approach
 - Key algorithms
-- How to apply this in practice" < paper.pdf 2>$null
+- How to apply this in practice" --file "paper.pdf" 2>$null
 ```
 
 ### 4. Documentation & Web Research
@@ -157,7 +157,7 @@ gemini -p "List all API endpoints in this codebase with their HTTP methods" \
 
 ```powershell
 gemini -p "Generate comprehensive documentation for src\\auth\" \
-  --include-directories src\\auth > docs\\auth-module.md 2>$null
+  --include-directories src\\auth 2>$null > docs\\auth-module.md
 ```
 
 ## Rate Limits

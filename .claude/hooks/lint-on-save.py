@@ -19,8 +19,9 @@ def validate_path(file_path: str) -> bool:
     """Validate file path for security."""
     if not file_path or len(file_path) > MAX_PATH_LENGTH:
         return False
-    # Check for path traversal
-    if ".." in file_path:
+    # Check for path traversal (cross-platform)
+    normalized = file_path.replace("\\", "/")
+    if ".." in normalized:
         return False
     return True
 
@@ -74,9 +75,11 @@ def main() -> None:
 
     project_dir = os.environ.get("CLAUDE_PROJECT_DIR", os.getcwd())
 
-    # Determine relative path for display
-    if file_path.startswith(project_dir):
-        rel_path = os.path.relpath(file_path, project_dir)
+    # Determine relative path for display (cross-platform)
+    normalized_file = os.path.normpath(file_path)
+    normalized_proj = os.path.normpath(project_dir)
+    if normalized_file.startswith(normalized_proj):
+        rel_path = os.path.relpath(normalized_file, normalized_proj)
     else:
         rel_path = file_path
 
