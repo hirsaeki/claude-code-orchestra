@@ -6,7 +6,8 @@ Project development environment and toolchain.
 
 On Windows, some Unix utilities used by Claude Code's Bash tool require additional setup:
 
-- **touch, chmod, wc, uniq, pkill, etc.**: Install via [MSYS2](https://www.msys2.org/) or [Git Bash](https://git-scm.com/downloads) (includes busybox)
+- pkill not inpremented, so use taskkill.exe.
+- **touch, chmod, wc, uniq, etc.**: Install via [MSYS2](https://www.msys2.org/) or [Git Bash](https://git-scm.com/downloads) (includes busybox)
 - **Alternative**: Use WSL2 for full POSIX compatibility
 
 The hook scripts and core functionality work with native Windows Python.

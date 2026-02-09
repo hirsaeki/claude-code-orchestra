@@ -109,6 +109,22 @@ Return CONCISE summary:
 
 ---
 
+## Shell Environment (Windows)
+
+**MUST use Git Bash (POSIX) syntax for all shell commands.**
+
+Claude Code on Windows requires Git Bash. Never use PowerShell syntax.
+
+| Use (Git Bash) | NOT (PowerShell) |
+|----------------|------------------|
+| `2>/dev/null` | `2>$null` |
+| `cp -r` | `Copy-Item -Recurse` |
+| `rm -rf` | `Remove-Item -Recurse -Force` |
+| `mkdir -p` | `New-Item -ItemType Directory` |
+| `/path/to/file` | `\path\to\file` |
+
+---
+
 ## Tech Stack
 
 - **Python** / **uv** (pip禁止)
