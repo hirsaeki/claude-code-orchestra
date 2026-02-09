@@ -93,8 +93,10 @@ Task tool parameters:
     {Task description}
 
     Call Codex CLI:
+    # IMPORTANT: Run from project root, never cd to subdirectory first
+    # Specify target directory in the prompt if needed
     codex exec --skip-git-repo-check --sandbox read-only --full-auto "
-    {Question for Codex}
+    [Work on files in {target/directory/}.] {Question for Codex}
     " 2>/dev/null 
 
     Return CONCISE summary:
@@ -110,7 +112,8 @@ Only use direct Bash call when:
 - Subagent overhead not justified
 
 ```bash
-# Only for simple queries
+# Only for simple queries (run from project root, never cd first)
+# Specify target directory in the prompt if needed: "Work on src/auth/. ..."
 codex exec --skip-git-repo-check --sandbox read-only --full-auto "Brief question" 2>/dev/null 
 ```
 

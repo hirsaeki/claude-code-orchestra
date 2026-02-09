@@ -50,7 +50,7 @@ Task tool parameters:
 - prompt: |
     Research for: {feature}
 
-    1. Call Gemini CLI:
+    1. Call Gemini CLI (run from project root, never cd first):
        gemini -p "Analyze this repository for: {feature}
 
        Provide:

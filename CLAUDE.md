@@ -35,7 +35,7 @@ Claude Code のコンテキストは **200k トークン** だが、ツール定
 Task(subagent_type="general-purpose", prompt="Codexに設計を相談し、要約を返して")
 
 # OK: 直接呼び出し（小さな出力のみ）
-Bash("codex exec --skip-git-repo-check ... '1文で答えて'")
+Bash("codex exec --skip-git-repo-check ... '1文で答えて'")  # Always run from project root (never cd first)
 ```
 
 ---
@@ -58,8 +58,10 @@ Bash("codex exec --skip-git-repo-check ... '1文で答えて'")
 Task(subagent_type="general-purpose", prompt="
 実装とテスト作成をCodexに依頼する。
 
+# IMPORTANT: Run from project root, never cd to subdirectory first
+# Specify target directory in the prompt if needed
 codex exec --skip-git-repo-check --sandbox workspace-write --full-auto \"
-{Implement task in English. Include files to modify and tests to add.}
+Work on files in {target/directory/}. {Implement task in English. Include files to modify and tests to add.}
 \"
 
 Return CONCISE summary:

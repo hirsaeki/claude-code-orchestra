@@ -53,12 +53,15 @@ You handle tasks that preserve the main orchestrator's context:
 
 When design decisions, debugging, or deep analysis is needed:
 
+**IMPORTANT**: Always run from project root, never `cd` to subdirectory first.
+Specify target directory in the prompt if needed.
+
 ```bash
-# Analysis (read-only)
+# Analysis (read-only, run from project root)
 codex exec --skip-git-repo-check --sandbox read-only --full-auto "{question}" 2>/dev/null
 
 # Implementation work (can write files)
-codex exec --skip-git-repo-check --sandbox workspace-write --full-auto "{task}" 2>/dev/null 
+codex exec --skip-git-repo-check --sandbox workspace-write --full-auto "Work on files in {target/dir/}. {task}" 2>/dev/null 
 ```
 
 **When to call Codex:**
@@ -71,12 +74,18 @@ codex exec --skip-git-repo-check --sandbox workspace-write --full-auto "{task}" 
 
 When research or large-scale analysis is needed:
 
+**IMPORTANT**: Always run from project root, never `cd` to subdirectory first.
+Specify target directory in the prompt or `--include-directories` if needed.
+
 ```bash
-# Research
+# Research (run from project root)
 gemini -p "{research question}" 2>/dev/null
 
-# Codebase analysis
+# Codebase analysis (. = project root)
 gemini -p "{question}" --include-directories . 2>/dev/null
+
+# Subdirectory analysis
+gemini -p "Analyze src/auth/" --include-directories src/auth 2>/dev/null
 
 # Multimodal (PDF, video, audio) - use --file option or pipe via cmd/WSL
 gemini -p "{extraction prompt}" --file "C:\path\to\file" 2>/dev/null 

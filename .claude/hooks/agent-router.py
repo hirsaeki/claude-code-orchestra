@@ -88,7 +88,8 @@ def main():
                     "hookEventName": "UserPromptSubmit",
                     "additionalContext": (
                         f"[Agent Routing] Detected '{trigger}' - this task may benefit from "
-                        "Codex CLI's deep reasoning capabilities. Consider: "
+                        "Codex CLI's deep reasoning capabilities. "
+                        "**Run from project root (never cd first)**: "
                         "`codex exec --skip-git-repo-check --sandbox read-only --full-auto "
                         '"{task description}"` for design decisions, debugging, or complex analysis. '
                         "For implementation or test authoring, prefer: "
@@ -105,7 +106,8 @@ def main():
                     "hookEventName": "UserPromptSubmit",
                     "additionalContext": (
                         f"[Agent Routing] Detected '{trigger}' - this task may benefit from "
-                        "Gemini CLI's research capabilities. Consider: "
+                        "Gemini CLI's research capabilities. "
+                        "**Run from project root (never cd first)**: "
                         '`gemini -p "Research: {topic}" 2>/dev/null` '
                         "for documentation, library research, or multimodal content."
                     )

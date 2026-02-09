@@ -68,6 +68,7 @@ Task tool parameters:
 - prompt: |
     Research: {topic}
 
+    # Run from project root, never cd first
     gemini -p "{research question}" 2>/dev/null
 
     Save full output to: .claude/docs/research/{topic}.md
@@ -76,7 +77,7 @@ Task tool parameters:
 
 ### Direct Call (Short Questions Only)
 
-For quick questions expecting brief answers:
+For quick questions expecting brief answers (run from project root):
 
 ```bash
 gemini -p "Brief question" 2>/dev/null
@@ -84,9 +85,14 @@ gemini -p "Brief question" 2>/dev/null
 
 ### CLI Options Reference
 
+**IMPORTANT**: Always run from project root, never `cd` to subdirectory first.
+
 ```bash
-# Codebase analysis
+# Codebase analysis (. = project root)
 gemini -p "{question}" --include-directories . 2>/dev/null
+
+# Subdirectory analysis
+gemini -p "Analyze src/auth/" --include-directories src/auth 2>/dev/null
 
 # Multimodal (PDF/video/audio)
 gemini -p "{prompt}" --file "C:\path\to\file.pdf" 2>/dev/null

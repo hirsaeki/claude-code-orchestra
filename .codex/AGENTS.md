@@ -52,6 +52,7 @@ You can read project context from `.claude/`:
 ## How You're Called
 
 ```powershell
+# Always run from project root (never cd to subdirectory first)
 codex exec --skip-git-repo-check --sandbox read-only --full-auto "{task}"
 ```
 

@@ -58,6 +58,8 @@ Task tool parameters:
 - prompt: |
     Consult Codex about: {topic}
 
+    # Run from project root, never cd first
+    # Specify target directory in prompt if needed
     codex exec --skip-git-repo-check --sandbox read-only --full-auto "
     {question for Codex}
     " 2>/dev/null
@@ -67,7 +69,7 @@ Task tool parameters:
 
 ### Direct Call (Short Questions Only)
 
-For quick questions expecting 1-2 sentence answers:
+For quick questions expecting 1-2 sentence answers (run from project root):
 
 ```bash
 codex exec --skip-git-repo-check --sandbox read-only --full-auto "Brief question" 2>/dev/null

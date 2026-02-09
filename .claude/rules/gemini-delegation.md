@@ -98,7 +98,8 @@ Task tool parameters:
 - prompt: |
     Research: {topic}
 
-    1. Call Gemini CLI:
+    1. Call Gemini CLI (run from project root, never cd first):
+       # Specify target directory in prompt if needed
        gemini -p "{research question}" 2>/dev/null 
 
     2. Save full output to: .claude/docs/research/{topic}.md
@@ -116,6 +117,7 @@ Task tool parameters:
 prompt: |
   Research best practices for {topic}.
 
+  # Run from project root, never cd first
   gemini -p "Research: {topic}. Include recommended approaches,
   common pitfalls, and library recommendations." 2>/dev/null 
 
@@ -128,6 +130,7 @@ prompt: |
 prompt: |
   Analyze codebase for {purpose}.
 
+  # Run from project root; use absolute path or . for entire project
   gemini -p "Analyze architecture, key modules, data flow,
   and entry points." --include-directories . 2>/dev/null 
 
@@ -161,12 +164,18 @@ Subagent returns concise summary. Full output available in `.claude/docs/researc
 
 For use within subagents:
 
+**IMPORTANT**: Always run from project root, never `cd` to subdirectory first.
+Specify target directory in the prompt if needed.
+
 ```bash
-# Research
+# Research (run from project root)
 gemini -p "{question}" 2>/dev/null 
 
-# Codebase analysis
+# Codebase analysis (. = project root)
 gemini -p "{question}" --include-directories . 2>/dev/null 
+
+# Subdirectory analysis (specify in prompt or use absolute path)
+gemini -p "Analyze files in src/auth/" --include-directories src/auth 2>/dev/null 
 
 # Multimodal
 gemini -p "{prompt}" --file "C:\path\to\file.pdf" 2>/dev/null 
