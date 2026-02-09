@@ -137,6 +137,19 @@ Claude Code on Windows requires Git Bash. Never use PowerShell syntax.
 
 ---
 
+## Timeout Configuration
+
+Codex/Gemini CLI calls may take several minutes for complex reasoning tasks.
+
+| Setting | Value | Purpose |
+|---------|-------|---------|
+| `BASH_DEFAULT_TIMEOUT_MS` | 600000 (10 min) | Default timeout for Bash commands |
+| `BASH_MAX_TIMEOUT_MS` | 3600000 (1 hour) | Maximum allowed timeout |
+
+Configured in `.claude/settings.json` → `env` section.
+
+---
+
 ## Documentation
 
 | Location | Content |
