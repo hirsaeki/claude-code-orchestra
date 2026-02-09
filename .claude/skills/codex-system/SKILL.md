@@ -60,7 +60,7 @@ Task tool parameters:
 
     codex exec --skip-git-repo-check --sandbox read-only --full-auto "
     {question for Codex}
-    " 2>$null
+    " 2>/dev/null
 
     Return CONCISE summary (key recommendation + rationale).
 ```
@@ -69,8 +69,8 @@ Task tool parameters:
 
 For quick questions expecting 1-2 sentence answers:
 
-```powershell
-codex exec --skip-git-repo-check --sandbox read-only --full-auto "Brief question" 2>$null
+```bash
+codex exec --skip-git-repo-check --sandbox read-only --full-auto "Brief question" 2>/dev/null
 ```
 
 ### Workflow (Subagent)
@@ -97,7 +97,7 @@ codex exec --skip-git-repo-check --sandbox read-only --full-auto "Brief question
 
 ### Design Review
 
-```powershell
+```bash
 codex exec --skip-git-repo-check --sandbox read-only --full-auto "
 Review this design approach for: {feature}
 
@@ -109,12 +109,12 @@ Evaluate:
 2. Alternative approaches?
 3. Potential issues?
 4. Recommendations?
-" 2>$null
+" 2>/dev/null
 ```
 
 ### Debug Analysis
 
-```powershell
+```bash
 codex exec --skip-git-repo-check --sandbox read-only --full-auto "
 Debug this issue:
 
@@ -123,7 +123,7 @@ Code: {relevant code}
 Context: {what was happening}
 
 Analyze root cause and suggest fixes.
-" 2>$null
+" 2>/dev/null
 ```
 
 ### Code Review

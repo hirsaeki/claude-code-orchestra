@@ -14,7 +14,7 @@
 
 ## インストール
 
-```powershell
+```bash
 pip install library-name
 ```
 

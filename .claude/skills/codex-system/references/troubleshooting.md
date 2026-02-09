@@ -2,7 +2,7 @@
 
 ## Codex CLI が見つからない
 
-```powershell
+```bash
 # 確認
 which codex
 codex --version
@@ -13,7 +13,7 @@ npm install -g @openai/codex
 
 ## 認証エラー
 
-```powershell
+```bash
 # 再認証
 codex login
 
@@ -38,16 +38,16 @@ tool_timeout_sec = 600
 
 ## Git リポジトリエラー
 
-```powershell
+```bash
 # Git 管理外で実行する場合
 codex exec --skip-git-repo-check ...
 ```
 
 ## reasoning 出力が多すぎる
 
-```powershell
+```bash
 # stderr 抑制
-codex exec --skip-git-repo-check ... 2>$null
+codex exec --skip-git-repo-check ... 2>/dev/null
 
 # または config.toml で
 hide_agent_reasoning = true
@@ -55,7 +55,7 @@ hide_agent_reasoning = true
 
 ## セッション継続できない
 
-```powershell
+```bash
 # 最近のセッション一覧
 codex sessions list
 

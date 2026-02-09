@@ -68,7 +68,7 @@ Task tool parameters:
 - prompt: |
     Research: {topic}
 
-    gemini -p "{research question}" 2>$null
+    gemini -p "{research question}" 2>/dev/null
 
     Save full output to: .claude/docs/research/{topic}.md
     Return CONCISE summary (5-7 bullet points).
@@ -78,21 +78,21 @@ Task tool parameters:
 
 For quick questions expecting brief answers:
 
-```powershell
-gemini -p "Brief question" 2>$null
+```bash
+gemini -p "Brief question" 2>/dev/null
 ```
 
 ### CLI Options Reference
 
-```powershell
+```bash
 # Codebase analysis
-gemini -p "{question}" --include-directories . 2>$null
+gemini -p "{question}" --include-directories . 2>/dev/null
 
 # Multimodal (PDF/video/audio)
-gemini -p "{prompt}" --file "C:\path\to\file.pdf" 2>$null
+gemini -p "{prompt}" --file "C:\path\to\file.pdf" 2>/dev/null
 
 # JSON output
-gemini -p "{question}" --output-format json 2>$null
+gemini -p "{question}" --output-format json 2>/dev/null
 ```
 
 ### Workflow (Subagent)
@@ -122,25 +122,25 @@ This allows Claude and Codex to reference the research later.
 
 ### Pre-Implementation Research
 
-```powershell
+```bash
 gemini -p "Research best practices for {feature} in Python 2025.
 Include:
 - Common patterns and anti-patterns
 - Library recommendations (with comparison)
 - Performance considerations
 - Security concerns
-- Code examples" 2>$null
+- Code examples" 2>/dev/null
 ```
 
 ### Repository Analysis
 
-```powershell
+```bash
 gemini -p "Analyze this repository:
 1. Architecture overview
 2. Key modules and responsibilities
 3. Data flow between components
 4. Entry points and extension points
-5. Existing patterns to follow" --include-directories . 2>$null
+5. Existing patterns to follow" --include-directories . 2>/dev/null
 ```
 
 ### Library Research
@@ -149,15 +149,15 @@ See: `references/lib-research-task.md`
 
 ### Multimodal Analysis
 
-```powershell
+```bash
 # Video
-gemini -p "Analyze video: main concepts, key points, timestamps" --file "tutorial.mp4" 2>$null
+gemini -p "Analyze video: main concepts, key points, timestamps" --file "tutorial.mp4" 2>/dev/null
 
 # PDF
-gemini -p "Extract: API specs, examples, constraints" --file "api-docs.pdf" 2>$null
+gemini -p "Extract: API specs, examples, constraints" --file "api-docs.pdf" 2>/dev/null
 
 # Audio
-gemini -p "Transcribe and summarize: decisions, action items" --file "meeting.mp3" 2>$null
+gemini -p "Transcribe and summarize: decisions, action items" --file "meeting.mp3" 2>/dev/null
 ```
 
 ## Integration with Codex

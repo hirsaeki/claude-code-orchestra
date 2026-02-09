@@ -89,7 +89,7 @@ def db_session():
 
 ## Commands
 
-```powershell
+```bash
 # All tests
 uv run pytest -v
 

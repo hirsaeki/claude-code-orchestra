@@ -37,7 +37,7 @@
 
 ### Pattern 1: アーキテクチャレビュー
 
-```powershell
+```bash
 codex exec --skip-git-repo-check \
   --config model_reasoning_effort="high" \
   --sandbox read-only \
@@ -49,12 +49,12 @@ codex exec --skip-git-repo-check \
    4. Extensibility for future auth providers
 
    Related files: src\\auth\**\*.py
-   Constraints: Must maintain backward compatibility" 2>$null
+   Constraints: Must maintain backward compatibility" 2>/dev/null
 ```
 
 ### Pattern 2: 失敗ベース委譲
 
-```powershell
+```bash
 codex exec --skip-git-repo-check \
   --config model_reasoning_effort="high" \
   --sandbox read-only \
@@ -70,12 +70,12 @@ codex exec --skip-git-repo-check \
    Please analyze from fresh perspective:
    - What root cause might we be missing?
    - Are there architectural issues causing this?
-   - What alternative approaches should we consider?" 2>$null
+   - What alternative approaches should we consider?" 2>/dev/null
 ```
 
 ### Pattern 3: パフォーマンス最適化
 
-```powershell
+```bash
 codex exec --skip-git-repo-check \
   --config model_reasoning_effort="xhigh" \
   --sandbox read-only \
@@ -93,12 +93,12 @@ codex exec --skip-git-repo-check \
    Provide:
    1. Optimized implementation
    2. Complexity analysis
-   3. Benchmark comparison approach" 2>$null
+   3. Benchmark comparison approach" 2>/dev/null
 ```
 
 ### Pattern 4: セキュリティ監査
 
-```powershell
+```bash
 codex exec --skip-git-repo-check \
   --config model_reasoning_effort="xhigh" \
   --sandbox read-only \
@@ -117,7 +117,7 @@ codex exec --skip-git-repo-check \
    - CRITICAL: Must fix immediately
    - HIGH: Fix before release
    - MEDIUM: Address in next sprint
-   - LOW: Tech debt" 2>$null
+   - LOW: Tech debt" 2>/dev/null
 ```
 
 ## 委譲しないケース

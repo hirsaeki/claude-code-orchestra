@@ -15,7 +15,7 @@ The hook scripts and core functionality work with native Windows Python.
 
 **Do not use pip directly. All commands must go through uv.**
 
-```powershell
+```bash
 # Add packages
 uv add <package>
 uv add --dev <package>    # Dev dependency
@@ -48,7 +48,7 @@ dev = [
 
 ## Linting & Formatting: ruff
 
-```powershell
+```bash
 # Check
 uv run ruff check .
 
@@ -83,7 +83,7 @@ quote-style = "double"
 
 ## Type Checking: ty
 
-```powershell
+```bash
 # Run type check
 uv run ty check src\\
 ```
@@ -98,7 +98,7 @@ uv run ty check src\\
 
 Interactive Python notebook environment.
 
-```powershell
+```bash
 # Create/edit notebook
 uv run marimo edit notebook.py
 
@@ -143,7 +143,7 @@ all = ["lint", "typecheck", "test"]
 
 ## Common Commands
 
-```powershell
+```bash
 # Initialize
 uv init
 uv venv

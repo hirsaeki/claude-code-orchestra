@@ -31,8 +31,8 @@ Both tools are called via Bash tool, so output is visible in Claude Code UI, but
 ```
 ┌──────────────────────────────────────────────────┐
 │  Claude Code calls Bash tool                     │
-│  → codex exec --skip-git-repo-check ... "prompt" 2>$null    │
-│  → gemini -p "prompt" 2>$null                               │
+│  → codex exec --skip-git-repo-check ... "prompt" 2>/dev/null    │
+│  → gemini -p "prompt" 2>/dev/null                               │
 └──────────────────────────────────────────────────┘
                     ↓
 ┌──────────────────────────────────────────────────┐
@@ -198,27 +198,27 @@ Add to `PostToolUse` hooks:
 ### 5. Querying Logs
 
 **View recent calls:**
-```powershell
+```bash
 tail -20 .claude\\logs\cli-tools.jsonl | jq '.'
 ```
 
 **Filter by tool:**
-```powershell
+```bash
 jq 'select(.tool == "codex")' .claude\\logs\cli-tools.jsonl
 ```
 
 **Count calls per tool:**
-```powershell
+```bash
 jq -r '.tool' .claude\\logs\cli-tools.jsonl | sort | uniq -c
 ```
 
 **Search prompts:**
-```powershell
+```bash
 jq 'select(.prompt | contains("design"))' .claude\\logs\cli-tools.jsonl
 ```
 
 **Failed calls only:**
-```powershell
+```bash
 jq 'select(.success == false)' .claude\\logs\cli-tools.jsonl
 ```
 
@@ -274,7 +274,7 @@ Estimated growth:
 - 30 days: ~1.5 MB/month
 
 **Rotation strategy** (if needed):
-```powershell
+```bash
 # Manual rotation (PowerShell)
 Move-Item .claude\logs\cli-tools.jsonl ".claude\logs\cli-tools-$(Get-Date -Format 'yyyyMM').jsonl"
 ```
@@ -338,7 +338,7 @@ Add context:
 ### 2. Log Viewer UI
 
 Simple Python script:
-```powershell
+```bash
 python .claude\\tools\view-logs.py
 # → Opens TUI for browsing logs
 ```
@@ -354,7 +354,7 @@ Track:
 ### 4. Export to SQLite
 
 For complex queries:
-```powershell
+```bash
 python .claude\\tools\export-logs-to-db.py
 # → Creates cli-tools.db
 ```
@@ -374,7 +374,7 @@ python .claude\\tools\export-logs-to-db.py
 ### Unit Tests
 ```python
 def test_extract_codex_prompt():
-    cmd = 'codex exec --skip-git-repo-check --sandbox read-only --full-auto "test prompt" 2>$null'
+    cmd = 'codex exec --skip-git-repo-check --sandbox read-only --full-auto "test prompt" 2>/dev/null'
     result = extract_codex_prompt(cmd)
     assert result["tool"] == "codex"
     assert result["prompt"] == "test prompt"

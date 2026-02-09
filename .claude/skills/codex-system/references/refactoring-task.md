@@ -61,7 +61,7 @@ Provide:
 
 ## Example Invocation
 
-```powershell
+```bash
 codex exec --skip-git-repo-check --sandbox workspace-write --full-auto "
 Refactor this code for simplicity:
 
@@ -79,7 +79,7 @@ File: src\services\llm_client.py
 - Improve naming
 
 [Principles and patterns as above...]
-" 2>$null
+" 2>/dev/null
 ```
 
 ## Checklist

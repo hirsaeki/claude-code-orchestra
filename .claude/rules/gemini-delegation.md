@@ -99,7 +99,7 @@ Task tool parameters:
     Research: {topic}
 
     1. Call Gemini CLI:
-       gemini -p "{research question}" 2>$null 
+       gemini -p "{research question}" 2>/dev/null 
 
     2. Save full output to: .claude/docs/research/{topic}.md
 
@@ -117,7 +117,7 @@ prompt: |
   Research best practices for {topic}.
 
   gemini -p "Research: {topic}. Include recommended approaches,
-  common pitfalls, and library recommendations." 2>$null 
+  common pitfalls, and library recommendations." 2>/dev/null 
 
   Save to .claude/docs/research/{topic}.md
   Return 5-7 key bullet points.
@@ -129,7 +129,7 @@ prompt: |
   Analyze codebase for {purpose}.
 
   gemini -p "Analyze architecture, key modules, data flow,
-  and entry points." --include-directories . 2>$null 
+  and entry points." --include-directories . 2>/dev/null 
 
   Save to .claude/docs/research/codebase-analysis.md
   Return architecture summary and key insights.
@@ -140,7 +140,7 @@ prompt: |
 prompt: |
   Extract information from {file}.
 
-  gemini -p "{extraction prompt}" --file "{file_path}" 2>$null 
+  gemini -p "{extraction prompt}" --file "{file_path}" 2>/dev/null 
 
   Save to .claude/docs/research/{output}.md
   Return key extracted information.
@@ -161,18 +161,18 @@ Subagent returns concise summary. Full output available in `.claude/docs/researc
 
 For use within subagents:
 
-```powershell
+```bash
 # Research
-gemini -p "{question}" 2>$null 
+gemini -p "{question}" 2>/dev/null 
 
 # Codebase analysis
-gemini -p "{question}" --include-directories . 2>$null 
+gemini -p "{question}" --include-directories . 2>/dev/null 
 
 # Multimodal
-gemini -p "{prompt}" --file "C:\path\to\file.pdf" 2>$null 
+gemini -p "{prompt}" --file "C:\path\to\file.pdf" 2>/dev/null 
 
 # JSON output
-gemini -p "{question}" --output-format json 2>$null 
+gemini -p "{question}" --output-format json 2>/dev/null 
 ```
 
 **Language protocol:**

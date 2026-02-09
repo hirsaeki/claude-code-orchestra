@@ -15,7 +15,7 @@ CODEX_TRIGGERS = {
         "設計", "どう設計", "アーキテクチャ",
         "なぜ動かない", "エラー", "バグ", "デバッグ",
         "どちらがいい", "比較して", "トレードオフ",
-        "実装方法", "どう実装",
+        "実装方法", "どう実装", "実装して"
         "テスト", "テストを書く", "テスト作成", "テスト追加", "テストが落ちた",
         "リファクタリング", "リファクタ",
         "レビュー", "見て",
@@ -25,7 +25,7 @@ CODEX_TRIGGERS = {
         "design", "architecture", "architect",
         "debug", "error", "bug", "not working", "fails",
         "compare", "trade-off", "tradeoff", "which is better",
-        "how to implement", "implementation",
+        "how to implement", "implementation", "implement",
         "test", "tests", "write tests", "test writing", "testing",
         "refactor", "simplify",
         "review", "check this",
@@ -106,7 +106,7 @@ def main():
                     "additionalContext": (
                         f"[Agent Routing] Detected '{trigger}' - this task may benefit from "
                         "Gemini CLI's research capabilities. Consider: "
-                        '`gemini -p "Research: {topic}" 2>$null` '
+                        '`gemini -p "Research: {topic}" 2>/dev/null` '
                         "for documentation, library research, or multimodal content."
                     )
                 }

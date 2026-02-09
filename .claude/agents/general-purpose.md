@@ -53,12 +53,12 @@ You handle tasks that preserve the main orchestrator's context:
 
 When design decisions, debugging, or deep analysis is needed:
 
-```powershell
+```bash
 # Analysis (read-only)
-codex exec --skip-git-repo-check --sandbox read-only --full-auto "{question}" 2>$null
+codex exec --skip-git-repo-check --sandbox read-only --full-auto "{question}" 2>/dev/null
 
 # Implementation work (can write files)
-codex exec --skip-git-repo-check --sandbox workspace-write --full-auto "{task}" 2>$null 
+codex exec --skip-git-repo-check --sandbox workspace-write --full-auto "{task}" 2>/dev/null 
 ```
 
 **When to call Codex:**
@@ -71,15 +71,15 @@ codex exec --skip-git-repo-check --sandbox workspace-write --full-auto "{task}" 
 
 When research or large-scale analysis is needed:
 
-```powershell
+```bash
 # Research
-gemini -p "{research question}" 2>$null
+gemini -p "{research question}" 2>/dev/null
 
 # Codebase analysis
-gemini -p "{question}" --include-directories . 2>$null
+gemini -p "{question}" --include-directories . 2>/dev/null
 
 # Multimodal (PDF, video, audio) - use --file option or pipe via cmd/WSL
-gemini -p "{extraction prompt}" --file "C:\path\to\file" 2>$null 
+gemini -p "{extraction prompt}" --file "C:\path\to\file" 2>/dev/null 
 ```
 
 **When to call Gemini:**

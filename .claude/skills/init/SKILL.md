@@ -69,7 +69,7 @@ Update the `## Common Commands` section with detected commands:
 ```markdown
 ## Common Commands
 
-```powershell
+```bash
 # Detected commands (example)
 {npm run dev / poe test / make build etc.}
 ```

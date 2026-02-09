@@ -35,7 +35,18 @@
         ]
       }
     ],
-    "PostToolUse": [
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python .claude/hooks/remind-plan-copy-on-stop.py",
+            "timeout": 5
+          }
+        ]
+      }
+    ],    "PostToolUse": [
       {
         "matcher": "Task",
         "hooks": [
@@ -179,3 +190,4 @@
     "EDITOR": "code --wait"
   }
 }
+

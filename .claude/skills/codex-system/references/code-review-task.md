@@ -67,7 +67,7 @@ Well-implemented points
 
 ## Example Invocation
 
-```powershell
+```bash
 codex exec --skip-git-repo-check --sandbox read-only --full-auto "
 Review this code change:
 
@@ -83,7 +83,7 @@ Review this code change:
 - pydantic: Use Field() for validation, avoid root validators
 
 [Review checklist as above...]
-" 2>$null
+" 2>/dev/null
 ```
 
 ## When to Use

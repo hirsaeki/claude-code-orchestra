@@ -52,7 +52,7 @@ def test_{function}_basic():
 ```
 
 Claude runs test and **confirms failure**:
-```powershell
+```bash
 uv run pytest tests\\test_{module}.py -v
 ```
 
@@ -64,7 +64,7 @@ Write **minimal** code to pass the test:
 - Just make the test pass
 
 Claude runs test and **confirms success**:
-```powershell
+```bash
 uv run pytest tests\\test_{module}.py -v
 ```
 
@@ -76,7 +76,7 @@ Improve while tests still pass:
 - Clean up structure
 
 Claude runs tests to confirm:
-```powershell
+```bash
 uv run pytest tests\\test_{module}.py -v  # Confirm still passes
 ```
 
@@ -86,7 +86,7 @@ Return to Step 1 with next test case from the list.
 
 ### Phase 3: Completion Check (Claude)
 
-```powershell
+```bash
 # Run all tests
 uv run pytest -v
 

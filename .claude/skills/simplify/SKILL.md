@@ -75,7 +75,7 @@ def main():
 
 ### 5. Verify with Tests
 
-```powershell
+```bash
 uv run pytest -v
 ```
 

@@ -81,7 +81,7 @@ CLI相談履歴を各エージェントの設定ファイルに追記。
 
 ## 使い方
 
-```powershell
+```bash
 # Session History モード（デフォルト）
 /checkpointing
 
@@ -98,7 +98,7 @@ CLI相談履歴を各エージェントの設定ファイルに追記。
 
 ### Skill Analysis の実行フロー
 
-```powershell
+```bash
 # Step 1: チェックポイント + 分析プロンプト生成
 python checkpoint.py --full --analyze
 
