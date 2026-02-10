@@ -17,16 +17,29 @@ from pathlib import Path
 
 LOG_DIR = Path(__file__).parent.parent / "logs"
 LOG_FILE = LOG_DIR / "cli-tools.jsonl"
+SENSITIVE_PATTERNS = [
+    re.compile(r"\bsk-[A-Za-z0-9_-]{10,}\b"),
+    re.compile(r"\bAIza[0-9A-Za-z_-]{20,}\b"),
+    re.compile(r"\bghp_[A-Za-z0-9]{20,}\b"),
+]
+
+
+def redact_sensitive(text: str) -> str:
+    """Mask known sensitive token patterns in logs."""
+    redacted = text
+    for pattern in SENSITIVE_PATTERNS:
+        redacted = pattern.sub("[REDACTED]", redacted)
+    return redacted
 
 
 def extract_codex_prompt(command: str) -> str | None:
     """Extract prompt from codex exec --skip-git-repo-check command."""
-    # Pattern: codex exec --skip-git-repo-check ... "prompt" or codex exec --skip-git-repo-check ... 'prompt'
+    # Pattern: codex exec ... "prompt" or codex exec ... 'prompt'
     patterns = [
         r'codex\s+exec\s+.*?--full-auto\s+"([^"]+)"',
         r"codex\s+exec\s+.*?--full-auto\s+'([^']+)'",
-        r'codex\s+exec\s+.*?"([^"]+)"\s*(?:2>(?:/dev/null|\$null|nul))?',
-        r"codex\s+exec\s+.*?'([^']+)'\s*(?:2>(?:/dev/null|\$null|nul))?",
+        r'codex\s+exec\s+.*?"([^"]+)"',
+        r"codex\s+exec\s+.*?'([^']+)'",
     ]
     for pattern in patterns:
         match = re.search(pattern, command, re.DOTALL)
@@ -39,8 +52,8 @@ def extract_gemini_prompt(command: str) -> str | None:
     """Extract prompt from gemini command."""
     # Pattern: gemini -p "prompt" or gemini -p 'prompt'
     patterns = [
-        r'gemini\s+-p\s+"([^"]+)"',
-        r"gemini\s+-p\s+'([^']+)'",
+        r'gemini\b.*?-p\s+"([^"]+)"',
+        r"gemini\b.*?-p\s+'([^']+)'",
     ]
     for pattern in patterns:
         match = re.search(pattern, command, re.DOTALL)
@@ -55,8 +68,27 @@ def extract_model(command: str) -> str | None:
     return match.group(1) if match else None
 
 
+COMMAND_SEGMENT_TOOL_PATTERN = re.compile(
+    r"(?:^|[;&|]\s*|\&\&\s*|\|\|\s*)(codex|gemini)\b",
+    re.IGNORECASE,
+)
+
+
+def detect_invoked_tool(command: str) -> str | None:
+    """Detect invoked CLI tool from command segments."""
+    detected_tools = [
+        match.group(1).lower() for match in COMMAND_SEGMENT_TOOL_PATTERN.finditer(command)
+    ]
+    if "codex" in detected_tools:
+        return "codex"
+    if "gemini" in detected_tools:
+        return "gemini"
+    return None
+
+
 def truncate_text(text: str, max_length: int = 2000) -> str:
     """Truncate text if too long."""
+    text = redact_sensitive(text)
     if len(text) <= max_length:
         return text
     return text[:max_length] + f"... [truncated, {len(text)} total chars]"
@@ -67,6 +99,59 @@ def log_entry(entry: dict) -> None:
     LOG_DIR.mkdir(parents=True, exist_ok=True)
     with open(LOG_FILE, "a", encoding="utf-8") as f:
         f.write(json.dumps(entry, ensure_ascii=False) + "\n")
+
+
+def parse_tool_response(hook_input: dict) -> tuple[str, str, int]:
+    """Extract stdout/stderr/exit_code from hook payload (supports multiple schemas)."""
+    tool_response = hook_input.get("tool_response")
+    tool_output = hook_input.get("tool_output")
+
+    if isinstance(tool_response, dict) and any(
+        key in tool_response for key in ("stdout", "stderr", "content", "exit_code")
+    ):
+        stdout = str(tool_response.get("stdout", "") or tool_response.get("content", "") or "")
+        stderr = str(tool_response.get("stderr", "") or "")
+        exit_code = tool_response.get("exit_code", 0)
+        if not isinstance(exit_code, int):
+            exit_code = 0
+        return stdout, stderr, exit_code
+
+    if isinstance(tool_response, str):
+        return tool_response, "", 0
+
+    if isinstance(tool_output, dict):
+        stdout = str(tool_output.get("stdout", "") or tool_output.get("content", "") or "")
+        stderr = str(tool_output.get("stderr", "") or "")
+        exit_code = tool_output.get("exit_code", 0)
+        if not isinstance(exit_code, int):
+            exit_code = 0
+        return stdout, stderr, exit_code
+
+    if isinstance(tool_output, str):
+        return tool_output, "", 0
+
+    return "", "", 0
+
+
+def maybe_emit_notification(tool: str, exit_code: int) -> None:
+    """Emit optional hook notification.
+
+    Default behavior is silent unless command fails.
+    Set CLAUDE_ORCHESTRA_LOG_NOTIFY=1 to always notify.
+    """
+    notify_all = os.getenv("CLAUDE_ORCHESTRA_LOG_NOTIFY", "").strip() == "1"
+    if not notify_all and exit_code == 0:
+        return
+
+    if exit_code == 0:
+        message = f"[LOG] {tool.capitalize()} call logged to .claude/logs/cli-tools.jsonl"
+    else:
+        message = (
+            f"[LOG] {tool.capitalize()} call failed (exit_code={exit_code}) - "
+            "logged to .claude/logs/cli-tools.jsonl"
+        )
+
+    print(json.dumps({"result": "continue", "message": message}))
 
 
 def main() -> None:
@@ -83,20 +168,15 @@ def main() -> None:
 
     # Get command and output
     tool_input = hook_input.get("tool_input", {})
-    tool_response = hook_input.get("tool_response", {})
+    command = str(tool_input.get("command", "") or "")
+    stdout, stderr, exit_code = parse_tool_response(hook_input)
 
-    command = tool_input.get("command", "")
-    output = tool_response.get("stdout", "") or tool_response.get("content", "")
-
-    # Check if this is a codex or gemini command
-    is_codex = "codex" in command.lower()
-    is_gemini = "gemini" in command.lower() and "codex" not in command.lower()
-
-    if not (is_codex or is_gemini):
+    invoked_tool = detect_invoked_tool(command)
+    if not invoked_tool:
         return
 
     # Extract prompt based on tool type
-    if is_codex:
+    if invoked_tool == "codex":
         tool = "codex"
         prompt = extract_codex_prompt(command)
         model = extract_model(command) or "gpt-5.3-codex"
@@ -110,8 +190,9 @@ def main() -> None:
         return
 
     # Determine success
-    exit_code = tool_response.get("exit_code", 0)
-    success = exit_code == 0 and bool(output)
+    success = exit_code == 0
+    has_output = bool(stdout or stderr)
+    response = stdout if stdout else stderr if stderr else ""
 
     # Create log entry
     entry = {
@@ -119,22 +200,16 @@ def main() -> None:
         "tool": tool,
         "model": model,
         "prompt": truncate_text(prompt),
-        "response": truncate_text(output) if output else "",
+        "stdout": truncate_text(stdout) if stdout else "",
+        "stderr": truncate_text(stderr) if stderr else "",
+        "response": truncate_text(response) if response else "",
         "success": success,
+        "has_output": has_output,
         "exit_code": exit_code,
     }
 
     log_entry(entry)
-
-    # Output notification (shown to user via hook output)
-    print(
-        json.dumps(
-            {
-                "result": "continue",
-                "message": f"[LOG] {tool.capitalize()} call logged to .claude/logs/cli-tools.jsonl",
-            }
-        )
-    )
+    maybe_emit_notification(tool, exit_code)
 
 
 if __name__ == "__main__":

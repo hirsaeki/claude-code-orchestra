@@ -58,10 +58,27 @@ Specify target directory in the prompt if needed.
 
 ```bash
 # Analysis (read-only, run from project root)
-codex exec --skip-git-repo-check --sandbox read-only --full-auto "{question}" 2>/dev/null
+codex exec --skip-git-repo-check --sandbox read-only --full-auto "{question}"
 
 # Implementation work (can write files)
-codex exec --skip-git-repo-check --sandbox workspace-write --full-auto "Work on files in {target/dir/}. {task}" 2>/dev/null 
+codex exec --skip-git-repo-check --sandbox workspace-write --full-auto "Work on files in {target/dir/}. {task}"
+
+# If machine-readable progress is needed
+codex exec --skip-git-repo-check --sandbox read-only --full-auto --json "{question}" 2>> .claude/logs/cli-tools.stderr.log
+
+# If stderr noise must be reduced, redirect to a file (do not discard)
+codex exec --skip-git-repo-check --sandbox read-only --full-auto "{question}" 2>> .claude/logs/cli-tools.stderr.log
+```
+
+### Patch Application on Windows (Codex CLI)
+
+When applying patches in Windows environments, prefer direct `codex.exe` invocation
+over `apply_patch.bat` wrapper to reduce argument parsing issues.
+
+```powershell
+# patch.diff should be UTF-8 (no BOM)
+$patch = [System.IO.File]::ReadAllText((Join-Path (Get-Location) 'patch.diff'))
+codex.exe --codex-run-as-apply-patch "$patch"
 ```
 
 **When to call Codex:**
@@ -79,16 +96,19 @@ Specify target directory in the prompt or `--include-directories` if needed.
 
 ```bash
 # Research (run from project root)
-gemini -p "{research question}" 2>/dev/null
+gemini -p "{research question}"
 
 # Codebase analysis (. = project root)
-gemini -p "{question}" --include-directories . 2>/dev/null
+gemini -p "{question}" --include-directories .
 
 # Subdirectory analysis
-gemini -p "Analyze src/auth/" --include-directories src/auth 2>/dev/null
+gemini -p "Analyze src/auth/" --include-directories src/auth
 
 # Multimodal (PDF, video, audio) - use --file option or pipe via cmd/WSL
-gemini -p "{extraction prompt}" --file "C:\path\to\file" 2>/dev/null 
+gemini -p "{extraction prompt}" --file "C:\path\to\file"
+
+# If stderr noise must be reduced, redirect to a file (do not discard)
+gemini -p "{research question}" 2>> .claude/logs/cli-tools.stderr.log
 ```
 
 **When to call Gemini:**

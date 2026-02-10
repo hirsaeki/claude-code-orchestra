@@ -69,7 +69,7 @@ def main():
                 "reason": (
                     f"PowerShell syntax detected: `{pattern}`. "
                     "Claude Code on Windows requires Git Bash (POSIX syntax). "
-                    "Use: `2>/dev/null` not `2>$null`, "
+                    "Use: `2>> .claude/logs/cli-tools.stderr.log` not `2>$null`, "
                     "`cp -r` not `Copy-Item`, "
                     "`rm -rf` not `Remove-Item`, "
                     "`/` path separators not `\\`."

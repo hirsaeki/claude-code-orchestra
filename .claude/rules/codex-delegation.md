@@ -97,7 +97,7 @@ Task tool parameters:
     # Specify target directory in the prompt if needed
     codex exec --skip-git-repo-check --sandbox read-only --full-auto "
     [Work on files in {target/directory/}.] {Question for Codex}
-    " 2>/dev/null 
+    " 2>> .claude/logs/cli-tools.stderr.log 
 
     Return CONCISE summary:
     - Key recommendation
@@ -114,7 +114,18 @@ Only use direct Bash call when:
 ```bash
 # Only for simple queries (run from project root, never cd first)
 # Specify target directory in the prompt if needed: "Work on src/auth/. ..."
-codex exec --skip-git-repo-check --sandbox read-only --full-auto "Brief question" 2>/dev/null 
+codex exec --skip-git-repo-check --sandbox read-only --full-auto "Brief question" 2>> .claude/logs/cli-tools.stderr.log 
+```
+
+### Patch Application on Windows (Codex CLI)
+
+For patch application workflows in Windows, prefer direct `codex.exe` invocation
+instead of `apply_patch.bat` wrapper.
+
+```powershell
+# patch.diff should be UTF-8 (no BOM)
+$patch = [System.IO.File]::ReadAllText((Join-Path (Get-Location) 'patch.diff'))
+codex.exe --codex-run-as-apply-patch "$patch"
 ```
 
 ### Sandbox Modes

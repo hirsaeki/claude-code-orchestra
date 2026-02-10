@@ -46,11 +46,21 @@ codex exec --skip-git-repo-check ...
 ## reasoning 出力が多すぎる
 
 ```bash
-# stderr 抑制
-codex exec --skip-git-repo-check ... 2>/dev/null
+# stderr をファイルへ退避
+codex exec --skip-git-repo-check ... 2>> .claude/logs/cli-tools.stderr.log
 
 # または config.toml で
 hide_agent_reasoning = true
+```
+
+## `apply_patch` が Windows で不安定
+
+`apply_patch.bat` 経由で引数が崩れる場合、`codex.exe` を直接呼び出す。
+
+```powershell
+# patch.diff は UTF-8 (no BOM) で作成
+$patch = [System.IO.File]::ReadAllText((Join-Path (Get-Location) 'patch.diff'))
+codex.exe --codex-run-as-apply-patch "$patch"
 ```
 
 ## セッション継続できない

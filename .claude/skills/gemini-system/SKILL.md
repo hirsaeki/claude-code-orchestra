@@ -69,7 +69,7 @@ Task tool parameters:
     Research: {topic}
 
     # Run from project root, never cd first
-    gemini -p "{research question}" 2>/dev/null
+    gemini -p "{research question}" 2>> .claude/logs/cli-tools.stderr.log
 
     Save full output to: .claude/docs/research/{topic}.md
     Return CONCISE summary (5-7 bullet points).
@@ -80,7 +80,7 @@ Task tool parameters:
 For quick questions expecting brief answers (run from project root):
 
 ```bash
-gemini -p "Brief question" 2>/dev/null
+gemini -p "Brief question" 2>> .claude/logs/cli-tools.stderr.log
 ```
 
 ### CLI Options Reference
@@ -89,16 +89,16 @@ gemini -p "Brief question" 2>/dev/null
 
 ```bash
 # Codebase analysis (. = project root)
-gemini -p "{question}" --include-directories . 2>/dev/null
+gemini -p "{question}" --include-directories . 2>> .claude/logs/cli-tools.stderr.log
 
 # Subdirectory analysis
-gemini -p "Analyze src/auth/" --include-directories src/auth 2>/dev/null
+gemini -p "Analyze src/auth/" --include-directories src/auth 2>> .claude/logs/cli-tools.stderr.log
 
 # Multimodal (PDF/video/audio)
-gemini -p "{prompt}" --file "C:\path\to\file.pdf" 2>/dev/null
+gemini -p "{prompt}" --file "C:\path\to\file.pdf" 2>> .claude/logs/cli-tools.stderr.log
 
 # JSON output
-gemini -p "{question}" --output-format json 2>/dev/null
+gemini -p "{question}" --output-format json 2>> .claude/logs/cli-tools.stderr.log
 ```
 
 ### Workflow (Subagent)
@@ -135,7 +135,7 @@ Include:
 - Library recommendations (with comparison)
 - Performance considerations
 - Security concerns
-- Code examples" 2>/dev/null
+- Code examples" 2>> .claude/logs/cli-tools.stderr.log
 ```
 
 ### Repository Analysis
@@ -146,7 +146,7 @@ gemini -p "Analyze this repository:
 2. Key modules and responsibilities
 3. Data flow between components
 4. Entry points and extension points
-5. Existing patterns to follow" --include-directories . 2>/dev/null
+5. Existing patterns to follow" --include-directories . 2>> .claude/logs/cli-tools.stderr.log
 ```
 
 ### Library Research
@@ -157,13 +157,13 @@ See: `references/lib-research-task.md`
 
 ```bash
 # Video
-gemini -p "Analyze video: main concepts, key points, timestamps" --file "tutorial.mp4" 2>/dev/null
+gemini -p "Analyze video: main concepts, key points, timestamps" --file "tutorial.mp4" 2>> .claude/logs/cli-tools.stderr.log
 
 # PDF
-gemini -p "Extract: API specs, examples, constraints" --file "api-docs.pdf" 2>/dev/null
+gemini -p "Extract: API specs, examples, constraints" --file "api-docs.pdf" 2>> .claude/logs/cli-tools.stderr.log
 
 # Audio
-gemini -p "Transcribe and summarize: decisions, action items" --file "meeting.mp3" 2>/dev/null
+gemini -p "Transcribe and summarize: decisions, action items" --file "meeting.mp3" 2>> .claude/logs/cli-tools.stderr.log
 ```
 
 ## Integration with Codex

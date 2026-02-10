@@ -255,6 +255,25 @@ uv run ruff check .
 | `check-codex-before-write.py` | ファイル書き込み前 | Codex相談提案 |
 | `log-cli-tools.py` | Codex/Gemini実行 | 入出力ログ記録 |
 
+## 更新履歴（2026-02-10）
+
+- `agent-router.py`: 日本語トリガー回帰対策（`--self-test` 追加）
+- `log-cli-tools.py`: `stderr` 収集、`success = (exit_code == 0)`、通知ノイズ抑制、`tool_response/tool_output` 両対応
+- テンプレ全体: `2>/dev/null` を `2>> .claude/logs/cli-tools.stderr.log` に統一
+- `codex-system` 系テンプレ: モデル表記を `gpt-5.3-codex` へ統一
+- `cli-logging-best-practices.md`: 実装差分（コマンドセグメント判定含む）とチェックリストを同期
+- Windows でのパッチ適用: `apply_patch.bat` ではなく `codex.exe --codex-run-as-apply-patch` を推奨（`patch.diff` は UTF-8 no BOM）
+
+## Windows でのパッチ適用（Codex CLI）
+
+`apply_patch.bat` の引数解釈で崩れるケースを避けるため、Windows では `codex.exe` を直接呼ぶ。
+
+```powershell
+# patch.diff は UTF-8 (no BOM) で作成
+$patch = [System.IO.File]::ReadAllText((Join-Path (Get-Location) 'patch.diff'))
+codex.exe --codex-run-as-apply-patch "$patch"
+```
+
 ## Language Rules
 
 - **コード・思考・推論**: 英語

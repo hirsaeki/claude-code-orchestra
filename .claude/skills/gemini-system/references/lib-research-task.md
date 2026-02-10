@@ -66,7 +66,7 @@ Use Google Search to find:
 - Latest blog posts, tutorials (2024-2025)
 
 [Template structure as above...]
-" 2>/dev/null
+" 2>> .claude/logs/cli-tools.stderr.log
 
 # Research with specific focus
 gemini -p "Research 'pydantic' v2 with focus on:
@@ -76,14 +76,14 @@ gemini -p "Research 'pydantic' v2 with focus on:
 - Breaking changes
 
 [Template structure as above...]
-" 2>/dev/null
+" 2>> .claude/logs/cli-tools.stderr.log
 ```
 
 ## Workflow
 
 1. **Run Gemini research** (background)
    ```bash
-   gemini -p "Research: {library}" 2>/dev/null
+   gemini -p "Research: {library}" 2>> .claude/logs/cli-tools.stderr.log
    ```
 
 2. **Save output to docs**

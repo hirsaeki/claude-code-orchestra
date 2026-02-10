@@ -2,7 +2,7 @@
 
 Research on logging Codex/Gemini CLI input/output in multi-agent system.
 
-**Date**: 2026-01-26
+**Date**: 2026-02-10
 
 ## Problem Statement
 
@@ -28,139 +28,72 @@ Both tools are called via Bash tool, so output is visible in Claude Code UI, but
 
 ### Architecture
 
-```
-┌──────────────────────────────────────────────────┐
-│  Claude Code calls Bash tool                     │
-│  → codex exec --skip-git-repo-check ... "prompt" 2>/dev/null    │
-│  → gemini -p "prompt" 2>/dev/null                               │
-└──────────────────────────────────────────────────┘
-                    ↓
-┌──────────────────────────────────────────────────┐
-│  PostToolUse Hook (Bash matcher)                 │
-│  → Receives: tool_input, tool_output             │
-│  → Detects: codex/gemini commands                │
-│  → Extracts: prompt, response                    │
-│  → Logs: to .claude/logs/cli-tools.jsonl        │
-└──────────────────────────────────────────────────┘
+```text
+Claude Code calls Bash tool
+  -> codex exec --skip-git-repo-check ... "prompt"
+  -> gemini -p "prompt"
+  (optional, if stderr noise reduction is needed)
+  -> ... 2>> .claude/logs/cli-tools.stderr.log
+
+PostToolUse Hook (Bash matcher)
+  -> Receives: tool_input + tool_response (or tool_output)
+  -> Detects: codex/gemini command segments
+  -> Extracts: prompt, stdout, stderr, response fallback
+  -> Logs: .claude/logs/cli-tools.jsonl
 ```
 
 ## Implementation Details
 
-### 1. Log Format: JSON Lines (JSONL)
+### 1. Input Schema Compatibility
+
+`log-cli-tools.py` supports both payload variants to avoid confusion:
+
+- Preferred schema: `tool_response` (dict with `stdout`, `stderr`, `exit_code`, `content`)
+- Backward-compatible schema: `tool_output` (string or dict)
+
+Resolution rules:
+1. If `tool_response` is dict, use it first
+2. Else if `tool_response` is string, map it to `stdout`
+3. Else if `tool_output` is dict/string, use that fallback
+
+Command detection rule:
+- Match `codex`/`gemini` at command-segment boundaries (`^`, `;`, `|`, `&&`, `||`) to reduce false positives from prompt text.
+
+### 2. Log Format: JSON Lines (JSONL)
 
 Each line is a complete JSON object:
 
 ```json
-{"timestamp": "2026-01-26T10:30:45+00:00", "tool": "codex", "model": "gpt-5.2-codex", "prompt": "How should I design...", "response": "I recommend...", "success": true, "exit_code": 0}
-{"timestamp": "2026-01-26T10:32:12+00:00", "tool": "gemini", "model": "gemini-3-pro-preview", "prompt": "Research best practices...", "response": "Based on...", "success": true, "exit_code": 0}
+{"timestamp":"2026-02-10T10:30:45+00:00","tool":"codex","model":"gpt-5.3-codex","prompt":"How should I design...","stdout":"I recommend...","stderr":"","response":"I recommend...","success":true,"has_output":true,"exit_code":0}
+{"timestamp":"2026-02-10T10:32:12+00:00","tool":"gemini","model":"gemini-3-pro-preview","prompt":"Research best practices...","stdout":"","stderr":"Progress...","response":"Progress...","success":true,"has_output":true,"exit_code":0}
 ```
 
 **Fields**:
 - `timestamp`: ISO 8601 format with timezone
-- `tool`: "codex" or "gemini"
+- `tool`: `"codex"` or `"gemini"`
 - `model`: Model name used
 - `prompt`: Input prompt (truncated to 2000 chars if longer)
-- `response`: Output response (truncated to 2000 chars if longer)
-- `success`: Whether the call succeeded (exit_code == 0 and output exists)
+- `stdout`: Captured standard output
+- `stderr`: Captured standard error
+- `response`: Backward-compatible aggregate (`stdout` first, else `stderr`, else empty)
+- `success`: Whether call succeeded (`exit_code == 0`)
+- `has_output`: Whether either stream has content
 - `exit_code`: Exit code from CLI command
 
 **Benefits**:
 - One log entry per line = easy to append
 - Valid JSON = easy to parse with `jq`, Python, etc.
 - Human-readable with proper formatting
-- No need for log rotation (JSONL scales well)
+- Keeps compatibility for consumers reading only `response`
 
-### 2. Hook Implementation: `log-cli-tools.py`
+### 3. Hook Behavior Notes
 
-```python
-#!/usr/bin/env python
-"""
-PostToolUse hook: Log Codex/Gemini CLI input/output.
-"""
+- Logging is append-only to `.claude/logs/cli-tools.jsonl`
+- Notification spam is reduced by default:
+  - No success notification unless `CLAUDE_ORCHESTRA_LOG_NOTIFY=1`
+  - Failed commands (`exit_code != 0`) emit a hook message by default
 
-import json
-import sys
-import re
-from datetime import datetime, timezone
-from pathlib import Path
-
-LOG_FILE = Path(__file__).parent.parent / "logs" / "cli-tools.jsonl"
-
-def extract_codex_prompt(command: str) -> dict | None:
-    """Extract prompt from codex command."""
-    # Match: codex exec --skip-git-repo-check --sandbox SANDBOX --full-auto "PROMPT"
-    match = re.search(
-        r'codex\s+exec\s+.*?--model\s+([^\s]+).*?--sandbox\s+([^\s]+).*?--full-auto\s+["\'](.+?)["\']',
-        command,
-        re.DOTALL
-    )
-    if match:
-        return {
-            "tool": "codex",
-            "model": match.group(1),
-            "sandbox": match.group(2),
-            "prompt": match.group(3).strip()
-        }
-    return None
-
-def extract_gemini_prompt(command: str) -> dict | None:
-    """Extract prompt from gemini command."""
-    # Match: gemini -p "PROMPT"
-    match = re.search(r'gemini\s+.*?-p\s+["\'](.+?)["\']', command, re.DOTALL)
-    if match:
-        return {
-            "tool": "gemini",
-            "prompt": match.group(1).strip()
-        }
-    return None
-
-def log_cli_call(log_data: dict):
-    """Append log entry to JSONL file."""
-    LOG_FILE.parent.mkdir(parents=True, exist_ok=True)
-    with LOG_FILE.open("a", encoding="utf-8") as f:
-        f.write(json.dumps(log_data, ensure_ascii=False) + "\n")
-
-def main():
-    try:
-        data = json.load(sys.stdin)
-        tool_name = data.get("tool_name", "")
-
-        # Only process Bash tool
-        if tool_name != "Bash":
-            sys.exit(0)
-
-        tool_input = data.get("tool_input", {})
-        tool_output = data.get("tool_output", "")
-        command = tool_input.get("command", "")
-
-        # Try to extract Codex or Gemini prompt
-        extracted = None
-        if "codex" in command:
-            extracted = extract_codex_prompt(command)
-        elif "gemini" in command:
-            extracted = extract_gemini_prompt(command)
-
-        if extracted:
-            # Build log entry
-            log_entry = {
-                "timestamp": datetime.now(timezone.utc).isoformat(),
-                **extracted,
-                "response": tool_output.strip(),
-                "success": "error" not in tool_output.lower()[:200]
-            }
-            log_cli_call(log_entry)
-
-        sys.exit(0)
-
-    except Exception as e:
-        print(f"Hook error: {e}", file=sys.stderr)
-        sys.exit(0)
-
-if __name__ == "__main__":
-    main()
-```
-
-### 3. Configuration: `.claude/settings.json`
+### 4. Configuration: `.claude/settings.json`
 
 Add to `PostToolUse` hooks:
 
@@ -179,15 +112,16 @@ Add to `PostToolUse` hooks:
 
 **Note**: Multiple hooks can match the same tool, so this can coexist with `post-test-analysis.py`.
 
-### 4. Log Storage Location
+### 5. Log Storage Location
 
-```
+```text
 .claude/
-├── logs/
-│   └── cli-tools.jsonl      # Main log file
-├── hooks/
-│   └── log-cli-tools.py     # Hook implementation
-└── settings.json
+  logs/
+    cli-tools.jsonl         # Main structured log
+    cli-tools.stderr.log    # Optional stderr sink for noisy commands
+  hooks/
+    log-cli-tools.py
+  settings.json
 ```
 
 **Why `.claude/logs/`?**
@@ -195,212 +129,178 @@ Add to `PostToolUse` hooks:
 - Easy to add to `.gitignore` (logs are local-only)
 - Separate from documentation/rules
 
-### 5. Querying Logs
+### 6. Querying Logs
 
 **View recent calls:**
 ```bash
-tail -20 .claude\\logs\cli-tools.jsonl | jq '.'
+tail -20 .claude/logs/cli-tools.jsonl | jq '.'
 ```
 
 **Filter by tool:**
 ```bash
-jq 'select(.tool == "codex")' .claude\\logs\cli-tools.jsonl
+jq 'select(.tool == "codex")' .claude/logs/cli-tools.jsonl
 ```
 
 **Count calls per tool:**
 ```bash
-jq -r '.tool' .claude\\logs\cli-tools.jsonl | sort | uniq -c
-```
-
-**Search prompts:**
-```bash
-jq 'select(.prompt | contains("design"))' .claude\\logs\cli-tools.jsonl
+jq -r '.tool' .claude/logs/cli-tools.jsonl | sort | uniq -c
 ```
 
 **Failed calls only:**
 ```bash
-jq 'select(.success == false)' .claude\\logs\cli-tools.jsonl
+jq 'select(.success == false)' .claude/logs/cli-tools.jsonl
 ```
 
-## Alternative Approaches Considered
-
-### ❌ Approach 1: Bash Wrapper Scripts
-
-Create `codex-logged` and `gemini-logged` wrapper scripts.
-
-**Pros**: Clean separation
-**Cons**:
-- Requires changing all call sites
-- Easy to forget and call unwrapped version
-- More complex to maintain
-
-### ❌ Approach 2: PreToolUse Hook
-
-Log before the tool executes.
-
-**Pros**: Captures input even if tool fails
-**Cons**:
-- Can't capture output
-- Can't measure duration
-- Need both Pre and Post hooks
-
-### ❌ Approach 3: Custom Logger Class
-
-Create Python logger that agents import.
-
-**Pros**: More structured, better error handling
-**Cons**:
-- Requires modifying all calling code
-- Couples logging to implementation
-- Not transparent to Claude Code
-
-### ✅ Approach 4: PostToolUse Hook (RECOMMENDED)
-
-Current recommendation combines best of all approaches.
-
-## Performance Considerations
-
-### File I/O Impact
-
-- **Append-only writes**: ~1ms per log entry
-- **No locks needed**: Single writer (hook process)
-- **JSONL format**: No parsing entire file on append
-
-### Log File Size
-
-Estimated growth:
-- Average entry: ~500 bytes (prompt + response)
-- 100 calls/day: ~50 KB/day
-- 30 days: ~1.5 MB/month
-
-**Rotation strategy** (if needed):
+**Calls with no output:**
 ```bash
-# Manual rotation (PowerShell)
-Move-Item .claude\logs\cli-tools.jsonl ".claude\logs\cli-tools-$(Get-Date -Format 'yyyyMM').jsonl"
+jq 'select(.success == true and .has_output == false)' .claude/logs/cli-tools.jsonl
 ```
-
-### Hook Timeout
-
-Set to 5 seconds (same as other hooks):
-- Allows for file I/O on slow systems
-- Prevents hanging on filesystem issues
-- Non-blocking (Claude continues even if hook fails)
 
 ## Security Considerations
 
-### 1. Sensitive Data in Prompts
+### 1. Sensitive Data in Prompts/Outputs
 
-Prompts may contain:
+Prompts and streams may contain:
 - API keys (if user accidentally includes)
 - User data
 - Proprietary code
 
-**Mitigation**:
-```python
-# .gitignore
-.claude/logs/
-```
+Current hook includes lightweight masking for common token patterns (e.g. `sk-...`, `AIza...`, `ghp_...`).
 
-**Alternative**: Redact sensitive patterns before logging:
-```python
-def redact_sensitive(text: str) -> str:
-    # Redact potential API keys
-    text = re.sub(r'[A-Za-z0-9]{32,}', '[REDACTED]', text)
-    return text
-```
+### 2. Retention Guidance
 
-### 2. Log File Permissions
-
-Ensure logs are user-readable only:
-```python
-LOG_FILE.chmod(0o600)  # rw------- (user only)
-```
-
-## Future Enhancements
-
-### 1. Structured Logging with Metadata
-
-Add context:
-```json
-{
-  "timestamp": "...",
-  "tool": "codex",
-  "prompt": "...",
-  "response": "...",
-  "context": {
-    "conversation_id": "abc123",
-    "user_prompt": "original user request",
-    "agent_type": "general-purpose"
-  }
-}
-```
-
-### 2. Log Viewer UI
-
-Simple Python script:
-```bash
-python .claude\\tools\view-logs.py
-# → Opens TUI for browsing logs
-```
-
-### 3. Metrics Dashboard
-
-Track:
-- Calls per day
-- Average response time
-- Success rate
-- Most common prompts
-
-### 4. Export to SQLite
-
-For complex queries:
-```bash
-python .claude\\tools\export-logs-to-db.py
-# → Creates cli-tools.db
-```
+- Keep `.claude/logs/` out of version control
+- Periodically rotate/remove logs in long-running projects
+- Avoid putting secrets into CLI prompts when possible
 
 ## Implementation Checklist
 
-- [ ] Create `.claude/logs/` directory
-- [ ] Add `.claude/logs/` to `.gitignore`
-- [ ] Create `log-cli-tools.py` hook
-- [ ] Update `.claude/settings.json` (PostToolUse → Bash)
-- [ ] Test with sample codex/gemini call
-- [ ] Verify JSONL format with `jq`
-- [ ] Document for team (add to DESIGN.md or README)
+- [x] Create `.claude/logs/` directory
+- [x] Add `.claude/logs/` to `.gitignore`
+- [x] Create `log-cli-tools.py` hook
+- [x] Update `.claude/settings.json` (PostToolUse -> Bash)
+- [x] Test with sample codex/gemini call
+- [x] Verify JSONL format with `jq`
+- [x] Document for team (add to DESIGN.md or README)
 
 ## Testing Plan
 
-### Unit Tests
+### Unit Checks
+
 ```python
-def test_extract_codex_prompt():
-    cmd = 'codex exec --skip-git-repo-check --sandbox read-only --full-auto "test prompt" 2>/dev/null'
-    result = extract_codex_prompt(cmd)
-    assert result["tool"] == "codex"
-    assert result["prompt"] == "test prompt"
+def test_success_is_exit_code_based():
+    payload = {
+        "tool_name": "Bash",
+        "tool_input": {"command": 'codex exec --full-auto "q"'},
+        "tool_response": {"stdout": "", "stderr": "", "exit_code": 0}
+    }
+    # expected: success == True, has_output == False
 ```
 
-### Integration Tests
-1. Make actual codex/gemini call
-2. Check log file exists
-3. Verify entry matches expected format
-4. Test with edge cases (multiline prompts, special chars)
+```python
+def test_response_fallback_to_stderr():
+    payload = {
+        "tool_name": "Bash",
+        "tool_input": {"command": 'gemini -p "q"'},
+        "tool_response": {"stdout": "", "stderr": "progress", "exit_code": 0}
+    }
+    # expected: response == "progress"
+```
+
+```python
+def test_tool_output_backward_compatibility():
+    payload = {
+        "tool_name": "Bash",
+        "tool_input": {"command": 'gemini -p "q"'},
+        "tool_output": "legacy-output"
+    }
+    # expected: stdout == "legacy-output"
+```
+
+### Integration Checks
+
+1. Make one successful codex/gemini call with stdout
+2. Make one call where only stderr has content
+3. Make one call with non-zero exit code
+4. Verify JSONL entries include `stdout`, `stderr`, `response`, `success`, `has_output`
+
+### Reusable Payload Examples (PowerShell)
+
+```powershell
+$payloads = @(
+  @{ tool_name='Bash'; tool_input=@{ command='codex exec --skip-git-repo-check --sandbox read-only --full-auto "stdout-case"' }; tool_response=@{ stdout='stdout-ok'; stderr=''; exit_code=0 } },
+  @{ tool_name='Bash'; tool_input=@{ command='gemini -p "stderr-case"' }; tool_response=@{ stdout=''; stderr='stderr-progress'; exit_code=0 } },
+  @{ tool_name='Bash'; tool_input=@{ command='gemini -p "fail-case"' }; tool_response=@{ stdout=''; stderr='stderr-fail'; exit_code=2 } },
+  @{ tool_name='Bash'; tool_input=@{ command='gemini -p "legacy-case"' }; tool_output='legacy-output-only' }
+)
+
+foreach ($payload in $payloads) {
+  ($payload | ConvertTo-Json -Depth 10 -Compress) |
+    python repo/.claude/hooks/log-cli-tools.py
+}
+```
+
+Expected outcomes:
+- `stdout-case`: `success=true`, `response=stdout-ok`
+- `stderr-case`: `success=true`, `response=stderr-progress`
+- `fail-case`: `success=false`, `exit_code=2`
+- `legacy-case`: `success=true`, `response=legacy-output-only`
+
+### Reusable Payload Examples (bash)
+
+```bash
+payloads=(
+  '{"tool_name":"Bash","tool_input":{"command":"codex exec --skip-git-repo-check --sandbox read-only --full-auto \"stdout-case\""},"tool_response":{"stdout":"stdout-ok","stderr":"","exit_code":0}}'
+  '{"tool_name":"Bash","tool_input":{"command":"gemini -p \"stderr-case\""},"tool_response":{"stdout":"","stderr":"stderr-progress","exit_code":0}}'
+  '{"tool_name":"Bash","tool_input":{"command":"gemini -p \"fail-case\""},"tool_response":{"stdout":"","stderr":"stderr-fail","exit_code":2}}'
+  '{"tool_name":"Bash","tool_input":{"command":"gemini -p \"legacy-case\""},"tool_output":"legacy-output-only"}'
+)
+
+for payload in "${payloads[@]}"; do
+  printf '%s\n' "$payload" | python repo/.claude/hooks/log-cli-tools.py
+done
+```
+
+Expected outcomes are the same as the PowerShell example above.
+
+### Reusable Payload Examples (JSON file)
+
+If you prefer file-based testing, create one JSON payload per file and pipe it.
+
+```bash
+mkdir -p .claude/tmp
+
+cat > .claude/tmp/payload-stdout.json <<'EOF'
+{"tool_name":"Bash","tool_input":{"command":"codex exec --skip-git-repo-check --sandbox read-only --full-auto \"stdout-case\""},"tool_response":{"stdout":"stdout-ok","stderr":"","exit_code":0}}
+EOF
+
+cat > .claude/tmp/payload-stderr.json <<'EOF'
+{"tool_name":"Bash","tool_input":{"command":"gemini -p \"stderr-case\""},"tool_response":{"stdout":"","stderr":"stderr-progress","exit_code":0}}
+EOF
+
+cat > .claude/tmp/payload-fail.json <<'EOF'
+{"tool_name":"Bash","tool_input":{"command":"gemini -p \"fail-case\""},"tool_response":{"stdout":"","stderr":"stderr-fail","exit_code":2}}
+EOF
+
+cat > .claude/tmp/payload-legacy.json <<'EOF'
+{"tool_name":"Bash","tool_input":{"command":"gemini -p \"legacy-case\""},"tool_output":"legacy-output-only"}
+EOF
+
+for file in .claude/tmp/payload-*.json; do
+  cat "$file" | python repo/.claude/hooks/log-cli-tools.py
+done
+```
+
+Expected outcomes are the same as the PowerShell and bash examples above.
 
 ## Conclusion
 
-**Recommended implementation**: PostToolUse hook with JSONL logging
+**Recommended implementation**: PostToolUse hook with JSONL logging and dual-schema input support
 
 **Key benefits**:
 - ✅ Zero code changes to call sites
 - ✅ Transparent to agents
-- ✅ Simple file-based storage
-- ✅ Easy to query with jq
-- ✅ Low performance overhead
-- ✅ Leverages existing hook infrastructure
-
-**Next steps**:
-1. Implement hook (30 minutes)
-2. Test with real calls (15 minutes)
-3. Add to documentation (15 minutes)
-
-Total implementation time: ~1 hour
+- ✅ stderr preserved for troubleshooting
+- ✅ success based on exit code (robust for empty-output success)
+- ✅ Reduced hook notification noise by default
+- ✅ Lightweight sensitive-data masking

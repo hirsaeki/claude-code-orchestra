@@ -83,7 +83,7 @@ Review this code change:
 - pydantic: Use Field() for validation, avoid root validators
 
 [Review checklist as above...]
-" 2>/dev/null
+" 2>> .claude/logs/cli-tools.stderr.log
 ```
 
 ## When to Use

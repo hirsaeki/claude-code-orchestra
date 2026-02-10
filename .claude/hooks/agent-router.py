@@ -15,7 +15,7 @@ CODEX_TRIGGERS = {
         "設計", "どう設計", "アーキテクチャ",
         "なぜ動かない", "エラー", "バグ", "デバッグ",
         "どちらがいい", "比較して", "トレードオフ",
-        "実装方法", "どう実装", "実装して"
+        "実装方法", "どう実装", "実装して", "コードを書", "コードを作",
         "テスト", "テストを書く", "テスト作成", "テスト追加", "テストが落ちた",
         "リファクタリング", "リファクタ",
         "レビュー", "見て",
@@ -52,6 +52,17 @@ GEMINI_TRIGGERS = {
 }
 
 
+def validate_trigger_configuration() -> None:
+    """Validate trigger tables to prevent accidental string concatenation regressions."""
+    japanese_codex_triggers = CODEX_TRIGGERS.get("ja", [])
+    if "実装して" not in japanese_codex_triggers:
+        raise ValueError("Missing required Codex trigger: 実装して")
+    if "テスト" not in japanese_codex_triggers:
+        raise ValueError("Missing required Codex trigger: テスト")
+    if "実装してテスト" in japanese_codex_triggers:
+        raise ValueError("Invalid merged trigger found: 実装してテスト")
+
+
 def detect_agent(prompt: str) -> tuple[str | None, str]:
     """Detect which agent should handle this prompt."""
     prompt_lower = prompt.lower()
@@ -71,8 +82,35 @@ def detect_agent(prompt: str) -> tuple[str | None, str]:
     return None, ""
 
 
+def run_self_test() -> int:
+    """Run lightweight regression checks for trigger routing."""
+    validate_trigger_configuration()
+
+    codex_agent_1, codex_trigger_1 = detect_agent("実装して")
+    if codex_agent_1 != "codex" or codex_trigger_1 != "実装して":
+        print("Self-test failed: '実装して' should route to codex", file=sys.stderr)
+        return 1
+
+    codex_agent_2, codex_trigger_2 = detect_agent("テスト")
+    if codex_agent_2 != "codex" or codex_trigger_2 != "テスト":
+        print("Self-test failed: 'テスト' should route to codex", file=sys.stderr)
+        return 1
+
+    codex_agent_3, _ = detect_agent("実装してテストを書いて")
+    if codex_agent_3 != "codex":
+        print("Self-test failed: combined Japanese trigger should route to codex", file=sys.stderr)
+        return 1
+
+    return 0
+
+
 def main():
     try:
+        if len(sys.argv) > 1 and sys.argv[1] == "--self-test":
+            sys.exit(run_self_test())
+
+        validate_trigger_configuration()
+
         data = json.load(sys.stdin)
         prompt = data.get("prompt", "")
 
@@ -108,7 +146,7 @@ def main():
                         f"[Agent Routing] Detected '{trigger}' - this task may benefit from "
                         "Gemini CLI's research capabilities. "
                         "**Run from project root (never cd first)**: "
-                        '`gemini -p "Research: {topic}" 2>/dev/null` '
+                        '`gemini -p "Research: {topic}"` '
                         "for documentation, library research, or multimodal content."
                     )
                 }

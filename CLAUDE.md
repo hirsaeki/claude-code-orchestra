@@ -119,11 +119,15 @@ Claude Code on Windows requires Git Bash. Never use PowerShell syntax.
 
 | Use (Git Bash) | NOT (PowerShell) |
 |----------------|------------------|
-| `2>/dev/null` | `2>$null` |
+| `2>> .claude/logs/cli-tools.stderr.log` | `2>$null` |
 | `cp -r` | `Copy-Item -Recurse` |
 | `rm -rf` | `Remove-Item -Recurse -Force` |
 | `mkdir -p` | `New-Item -ItemType Directory` |
 | `/path/to/file` | `\path\to\file` |
+
+Codex CLI でパッチを適用する場合（Windows）は、`apply_patch.bat` よりも
+`codex.exe --codex-run-as-apply-patch` の直接呼び出しを優先する。
+`patch.diff` は UTF-8 (no BOM) で作成すること。
 
 ---
 

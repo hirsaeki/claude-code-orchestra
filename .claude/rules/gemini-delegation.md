@@ -100,7 +100,7 @@ Task tool parameters:
 
     1. Call Gemini CLI (run from project root, never cd first):
        # Specify target directory in prompt if needed
-       gemini -p "{research question}" 2>/dev/null 
+       gemini -p "{research question}" 2>> .claude/logs/cli-tools.stderr.log 
 
     2. Save full output to: .claude/docs/research/{topic}.md
 
@@ -119,7 +119,7 @@ prompt: |
 
   # Run from project root, never cd first
   gemini -p "Research: {topic}. Include recommended approaches,
-  common pitfalls, and library recommendations." 2>/dev/null 
+  common pitfalls, and library recommendations." 2>> .claude/logs/cli-tools.stderr.log 
 
   Save to .claude/docs/research/{topic}.md
   Return 5-7 key bullet points.
@@ -132,7 +132,7 @@ prompt: |
 
   # Run from project root; use absolute path or . for entire project
   gemini -p "Analyze architecture, key modules, data flow,
-  and entry points." --include-directories . 2>/dev/null 
+  and entry points." --include-directories . 2>> .claude/logs/cli-tools.stderr.log 
 
   Save to .claude/docs/research/codebase-analysis.md
   Return architecture summary and key insights.
@@ -143,7 +143,7 @@ prompt: |
 prompt: |
   Extract information from {file}.
 
-  gemini -p "{extraction prompt}" --file "{file_path}" 2>/dev/null 
+  gemini -p "{extraction prompt}" --file "{file_path}" 2>> .claude/logs/cli-tools.stderr.log 
 
   Save to .claude/docs/research/{output}.md
   Return key extracted information.
@@ -169,19 +169,19 @@ Specify target directory in the prompt if needed.
 
 ```bash
 # Research (run from project root)
-gemini -p "{question}" 2>/dev/null 
+gemini -p "{question}" 2>> .claude/logs/cli-tools.stderr.log 
 
 # Codebase analysis (. = project root)
-gemini -p "{question}" --include-directories . 2>/dev/null 
+gemini -p "{question}" --include-directories . 2>> .claude/logs/cli-tools.stderr.log 
 
 # Subdirectory analysis (specify in prompt or use absolute path)
-gemini -p "Analyze files in src/auth/" --include-directories src/auth 2>/dev/null 
+gemini -p "Analyze files in src/auth/" --include-directories src/auth 2>> .claude/logs/cli-tools.stderr.log 
 
 # Multimodal
-gemini -p "{prompt}" --file "C:\path\to\file.pdf" 2>/dev/null 
+gemini -p "{prompt}" --file "C:\path\to\file.pdf" 2>> .claude/logs/cli-tools.stderr.log 
 
 # JSON output
-gemini -p "{question}" --output-format json 2>/dev/null 
+gemini -p "{question}" --output-format json 2>> .claude/logs/cli-tools.stderr.log 
 ```
 
 **Language protocol:**

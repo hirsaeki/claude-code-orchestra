@@ -13,7 +13,7 @@ metadata:
 
 # Codex System — Deep Reasoning Partner
 
-**Codex CLI (gpt-5.2-codex) is your highly capable supporter for deep reasoning tasks.**
+**Codex CLI (gpt-5.3-codex) is your highly capable supporter for deep reasoning tasks.**
 
 > **詳細ルール**: `.claude/rules/codex-delegation.md`
 
@@ -62,7 +62,7 @@ Task tool parameters:
     # Specify target directory in prompt if needed
     codex exec --skip-git-repo-check --sandbox read-only --full-auto "
     {question for Codex}
-    " 2>/dev/null
+    " 2>> .claude/logs/cli-tools.stderr.log
 
     Return CONCISE summary (key recommendation + rationale).
 ```
@@ -72,7 +72,18 @@ Task tool parameters:
 For quick questions expecting 1-2 sentence answers (run from project root):
 
 ```bash
-codex exec --skip-git-repo-check --sandbox read-only --full-auto "Brief question" 2>/dev/null
+codex exec --skip-git-repo-check --sandbox read-only --full-auto "Brief question" 2>> .claude/logs/cli-tools.stderr.log
+```
+
+### Patch Application on Windows (Codex CLI)
+
+When applying patches in Windows environments, prefer direct `codex.exe` invocation
+over `apply_patch.bat` wrapper to reduce argument parsing issues.
+
+```powershell
+# patch.diff should be UTF-8 (no BOM)
+$patch = [System.IO.File]::ReadAllText((Join-Path (Get-Location) 'patch.diff'))
+codex.exe --codex-run-as-apply-patch "$patch"
 ```
 
 ### Workflow (Subagent)
@@ -111,7 +122,7 @@ Evaluate:
 2. Alternative approaches?
 3. Potential issues?
 4. Recommendations?
-" 2>/dev/null
+" 2>> .claude/logs/cli-tools.stderr.log
 ```
 
 ### Debug Analysis
@@ -125,7 +136,7 @@ Code: {relevant code}
 Context: {what was happening}
 
 Analyze root cause and suggest fixes.
-" 2>/dev/null
+" 2>> .claude/logs/cli-tools.stderr.log
 ```
 
 ### Code Review

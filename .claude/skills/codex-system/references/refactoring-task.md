@@ -79,7 +79,7 @@ File: src\services\llm_client.py
 - Improve naming
 
 [Principles and patterns as above...]
-" 2>/dev/null
+" 2>> .claude/logs/cli-tools.stderr.log
 ```
 
 ## Checklist
