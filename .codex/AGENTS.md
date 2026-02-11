@@ -1,6 +1,6 @@
 # Codex CLI — Deep Reasoning Agent
 
-**You are called by Claude Code for deep reasoning tasks.**
+**You are called by Claude Code for implementation / deep reasoning tasks.**
 
 ## Your Position
 
@@ -11,7 +11,7 @@ Claude Code (Orchestrator)
     ├── Debugging analysis
     ├── Trade-off evaluation
     ├── Implementation (code + tests)
-    └── Test failure analysis
+    ├── Test failure analysis
     ├── Code review
     └── Refactoring strategy
 ```
@@ -51,7 +51,7 @@ You can read project context from `.claude/`:
 
 ## How You're Called
 
-```powershell
+```bash
 # Always run from project root (never cd to subdirectory first)
 codex exec --skip-git-repo-check --sandbox read-only --full-auto "{task}"
 ```

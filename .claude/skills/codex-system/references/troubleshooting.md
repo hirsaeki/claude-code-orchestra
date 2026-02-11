@@ -58,7 +58,7 @@ hide_agent_reasoning = true
 `apply_patch.bat` 経由で引数が崩れる場合、`codex.exe` を直接呼び出す。
 
 ```powershell
-# patch.diff は UTF-8 (no BOM) で作成
+# patch.diff must be UTF-8 (no BOM)
 $patch = [System.IO.File]::ReadAllText((Join-Path (Get-Location) 'patch.diff'))
 codex.exe --codex-run-as-apply-patch "$patch"
 ```

@@ -45,18 +45,19 @@
         ]
       }
     ],
-    "Stop": [
+    "SessionEnd": [
       {
         "matcher": "",
         "hooks": [
           {
             "type": "command",
-            "command": "python .claude/hooks/remind-plan-copy-on-stop.py",
+            "command": "python .claude/hooks/remind-session-end.py",
             "timeout": 5
           }
         ]
       }
-    ],    "PostToolUse": [
+    ],
+    "PostToolUse": [
       {
         "matcher": "Task",
         "hooks": [
@@ -108,8 +109,8 @@
       "Glob(*)",
       "Grep(*)",
       "LS(*)",
-      "WebFetch(*)",
-      "WebSearch(*)",
+      "WebFetch(domain:*)",
+      "WebSearch(domain:*)",
       "Task(*)",
       "Skill(*)",
       "TodoRead(*)",
@@ -202,4 +203,3 @@
     "BASH_MAX_TIMEOUT_MS": "3600000"
   }
 }
-

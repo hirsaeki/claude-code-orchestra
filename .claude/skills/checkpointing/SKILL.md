@@ -3,7 +3,7 @@ name: checkpointing
 description: |
   Save session context to agent configuration files or create full checkpoint files.
   Supports three modes: session history (default), full checkpoint (--full),
-  and skill analysis (--full --analyze) for extracting reusable patterns.
+  skill analysis (--full --analyze), and handoff package generation (--handoff).
 metadata:
   short-description: Checkpoint session context with skill extraction support
 ---
@@ -79,6 +79,26 @@ CLI相談履歴を各エージェントの設定ファイルに追記。
 - 特定ファイルセットの同時変更
 - CLI相談→コード変更のシーケンス
 
+### Mode 4: Handoff Package（--handoff）
+
+次セッション用の引き継ぎパックを生成。
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  /handoff --goal "API認証リファクタを完了"                  │
+│                      ↓                                      │
+│  .claude/handoffs/YYYY-MM-DD-HHMMSS.md                      │
+│  ├─ Goal                                                     │
+│  ├─ Snapshot (branch, commits, working tree, CLI stats)     │
+│  ├─ Open Work / failed CLI calls                             │
+│  ├─ Suggested Next Actions                                   │
+│  └─ Verification Checklist                                   │
+│                      ↓                                      │
+│  .claude/handoffs/YYYY-MM-DD-HHMMSS.prompt.md               │
+│  └─ 次セッション先頭に貼る Resume Prompt                      │
+└─────────────────────────────────────────────────────────────┘
+```
+
 ## 使い方
 
 ```bash
@@ -91,9 +111,14 @@ CLI相談履歴を各エージェントの設定ファイルに追記。
 # Skill Analysis モード（推奨）
 /checkpointing --full --analyze
 
+# Handoff Package モード
+/handoff
+/handoff --goal "ユーザー登録APIの未完了部分を仕上げる"
+
 # 期間指定
 /checkpointing --since "2026-01-26"
 /checkpointing --full --analyze --since "2026-01-26"
+/handoff --since "2026-01-26" --goal "残タスク整理"
 ```
 
 ### Skill Analysis の実行フロー
@@ -188,6 +213,7 @@ python checkpoint.py --full --analyze
 | タイミング | 推奨モード |
 |-----------|-----------|
 | セッション終了前 | `--full --analyze` |
+| セッション終了前（再開重視） | `--handoff --goal "次の目標"` |
 | 重要な設計決定後 | `--full` |
 | 大きな機能実装完了後 | `--full --analyze` |
 | 長時間作業の区切り | `--full` |
@@ -200,6 +226,7 @@ python checkpoint.py --full --analyze
 - 既存の `## Session History` セクションは上書きされます
 - ログファイル自体は変更されません（読み取りのみ）
 - Full Checkpoint は `.claude/checkpoints/` に蓄積されます
+- Handoff Package は `.claude/handoffs/` に蓄積されます
 - Git未初期化プロジェクトでもCLIログ部分は動作します
 - `--analyze` で生成されたスキル提案は人間がレビューしてから採用すること
 - スキル分析はパターンを固定せず、AIが自由に発見する設計

@@ -117,11 +117,6 @@ Only use direct Bash call when:
 codex exec --skip-git-repo-check --sandbox read-only --full-auto "Brief question" 2>> .claude/logs/cli-tools.stderr.log 
 ```
 
-### Patch Application on Windows (Codex CLI)
-
-For patch application workflows in Windows, prefer direct `codex.exe` invocation
-instead of `apply_patch.bat` wrapper.
-
 ```powershell
 # patch.diff should be UTF-8 (no BOM)
 $patch = [System.IO.File]::ReadAllText((Join-Path (Get-Location) 'patch.diff'))

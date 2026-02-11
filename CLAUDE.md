@@ -102,6 +102,14 @@ Return CONCISE summary:
 
 → 詳細: `/startproject`, `/plan`, `/tdd` skills
 
+### Session Handoff Rule
+
+セッション終了前に `/handoff --goal "次セッションの目標"` を実行し、
+`.claude/handoffs/` に引き継ぎパック（summary + resume prompt）を保存する。
+
+- `checkpointing --full`: 履歴保存・分析向け
+- `handoff`: 次セッション再開速度の最適化向け
+
 ### Planning Tagging Rule
 
 `/startproject` と `/plan` のタスクは、各ステップに担当を明記する。
@@ -113,7 +121,7 @@ Return CONCISE summary:
 
 ## Shell Environment (Windows)
 
-**MUST use Git Bash (POSIX) syntax for all shell commands.**
+**You MUST use Git Bash (POSIX) syntax for all shell commands.**
 
 Claude Code on Windows requires Git Bash. Never use PowerShell syntax.
 
@@ -124,10 +132,6 @@ Claude Code on Windows requires Git Bash. Never use PowerShell syntax.
 | `rm -rf` | `Remove-Item -Recurse -Force` |
 | `mkdir -p` | `New-Item -ItemType Directory` |
 | `/path/to/file` | `\path\to\file` |
-
-Codex CLI でパッチを適用する場合（Windows）は、`apply_patch.bat` よりも
-`codex.exe --codex-run-as-apply-patch` の直接呼び出しを優先する。
-`patch.diff` は UTF-8 (no BOM) で作成すること。
 
 ---
 

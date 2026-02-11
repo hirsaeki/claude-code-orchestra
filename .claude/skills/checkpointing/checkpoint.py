@@ -6,6 +6,7 @@ Usage:
     python checkpoint.py [--since YYYY-MM-DD]           # Session history mode
     python checkpoint.py --full [--since YYYY-MM-DD]    # Full checkpoint mode
     python checkpoint.py --full --analyze               # Full checkpoint + skill analysis
+    python checkpoint.py --handoff [--goal TEXT]        # Handoff package for next session
 
 Session History Mode (default):
     Updates CLAUDE.md, .codex/AGENTS.md, .gemini/GEMINI.md with CLI consultation history.
@@ -20,6 +21,11 @@ Full Checkpoint Mode (--full):
 Analyze Mode (--full --analyze):
     After creating checkpoint, outputs a prompt for AI analysis to extract
     reusable skill patterns. Use with subagent to analyze and suggest new skills.
+
+Handoff Mode (--handoff):
+    Creates a session handoff package in .claude/handoffs/ including:
+    - Handoff summary (progress, open work, next actions)
+    - Resume prompt template for a new session
 """
 
 import argparse
@@ -33,6 +39,7 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).parent.parent.parent.parent
 LOG_FILE = PROJECT_ROOT / ".claude" / "logs" / "cli-tools.jsonl"
 CHECKPOINTS_DIR = PROJECT_ROOT / ".claude" / "checkpoints"
+HANDOFFS_DIR = PROJECT_ROOT / ".claude" / "handoffs"
 DESIGN_FILE = PROJECT_ROOT / ".claude" / "docs" / "DESIGN.md"
 
 CONTEXT_FILES = {
@@ -185,6 +192,198 @@ def get_file_stats(since: str | None = None) -> dict[str, tuple[int, int]]:
             continue
 
     return stats
+
+
+def get_working_tree_changes() -> list[str]:
+    """Get git working tree changes in short format."""
+    output = run_git_command(["status", "--short"])
+    if not output:
+        return []
+    return [line for line in output.split("\n") if line.strip()]
+
+
+def summarize_recent_entries(
+    entries: list[dict],
+    *,
+    success: bool | None,
+    limit: int = 5,
+) -> list[str]:
+    """Create compact summaries of recent CLI entries."""
+    filtered: list[dict] = []
+    for entry in entries:
+        if success is not None and entry.get("success", False) != success:
+            continue
+        filtered.append(entry)
+
+    recent = sorted(filtered, key=lambda e: e.get("timestamp", ""), reverse=True)
+
+    summaries: list[str] = []
+    for entry in recent[:limit]:
+        tool = entry.get("tool", "unknown")
+        prompt = entry.get("prompt", "")
+        prompt_summary = prompt.replace("\n", " ").strip()
+        if len(prompt_summary) > 90:
+            prompt_summary = prompt_summary[:87] + "..."
+        if not prompt_summary:
+            prompt_summary = "(no prompt captured)"
+        summaries.append(f"[{tool}] {prompt_summary}")
+
+    return summaries
+
+
+def generate_handoff_package(since: str | None = None, goal: str | None = None) -> tuple[Path, Path]:
+    """Generate handoff summary + resume prompt for the next session."""
+    timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%d-%H%M%S")
+    HANDOFFS_DIR.mkdir(parents=True, exist_ok=True)
+
+    handoff_file = HANDOFFS_DIR / f"{timestamp}.md"
+    prompt_file = HANDOFFS_DIR / f"{timestamp}.prompt.md"
+
+    entries = parse_logs(since)
+    commits = get_git_commits(since)
+    file_changes = get_file_changes(since)
+    working_tree = get_working_tree_changes()
+    branch = run_git_command(["rev-parse", "--abbrev-ref", "HEAD"]) or "unknown"
+
+    codex_entries = [e for e in entries if e.get("tool") == "codex"]
+    gemini_entries = [e for e in entries if e.get("tool") == "gemini"]
+
+    codex_success = sum(1 for e in codex_entries if e.get("success", False))
+    gemini_success = sum(1 for e in gemini_entries if e.get("success", False))
+
+    recent_successes = summarize_recent_entries(entries, success=True, limit=5)
+    recent_failures = summarize_recent_entries(entries, success=False, limit=5)
+
+    total_files = (
+        len(file_changes["created"])
+        + len(file_changes["modified"])
+        + len(file_changes["deleted"])
+    )
+
+    next_actions: list[str] = []
+    if goal:
+        next_actions.append(f"Break the goal into the next smallest deliverable: {goal}")
+    if working_tree:
+        next_actions.append(
+            f"Review {len(working_tree)} working tree change(s) and choose the first file to continue."
+        )
+    if recent_failures:
+        next_actions.append("Retry the latest failed CLI task with a narrower prompt and explicit output format.")
+    next_actions.append("Run focused verification for touched files before additional edits.")
+    next_actions.append("Create a fresh `/handoff` snapshot before ending the next session.")
+
+    deduped_actions: list[str] = []
+    seen_actions: set[str] = set()
+    for action in next_actions:
+        if action in seen_actions:
+            continue
+        deduped_actions.append(action)
+        seen_actions.add(action)
+
+    handoff_lines: list[str] = []
+    handoff_lines.append(f"# Handoff: {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')} UTC")
+    handoff_lines.append("")
+    handoff_lines.append("## Goal")
+    handoff_lines.append("")
+    handoff_lines.append(f"- {goal if goal else '(No explicit goal provided)'}")
+    handoff_lines.append("")
+
+    handoff_lines.append("## Snapshot")
+    handoff_lines.append("")
+    handoff_lines.append(f"- **Branch**: `{branch}`")
+    handoff_lines.append(f"- **Commits captured**: {len(commits)}")
+    handoff_lines.append(
+        f"- **Files changed (git history window)**: {total_files} "
+        f"({len(file_changes['modified'])} modified, "
+        f"{len(file_changes['created'])} created, "
+        f"{len(file_changes['deleted'])} deleted)"
+    )
+    handoff_lines.append(f"- **Working tree changes**: {len(working_tree)}")
+    handoff_lines.append(
+        f"- **Codex consultations**: {len(codex_entries)} "
+        f"({codex_success} success, {len(codex_entries) - codex_success} failed)"
+    )
+    handoff_lines.append(
+        f"- **Gemini researches**: {len(gemini_entries)} "
+        f"({gemini_success} success, {len(gemini_entries) - gemini_success} failed)"
+    )
+    if since:
+        handoff_lines.append(f"- **Since**: {since}")
+    handoff_lines.append("")
+
+    handoff_lines.append("## Completed Signals")
+    handoff_lines.append("")
+    if recent_successes:
+        for item in recent_successes:
+            handoff_lines.append(f"- {item}")
+    else:
+        handoff_lines.append("- No successful CLI consultations recorded in the selected range.")
+    handoff_lines.append("")
+
+    handoff_lines.append("## Open Work")
+    handoff_lines.append("")
+    handoff_lines.append("### Working Tree Changes")
+    handoff_lines.append("")
+    if working_tree:
+        for line in working_tree[:20]:
+            handoff_lines.append(f"- `{line}`")
+        if len(working_tree) > 20:
+            handoff_lines.append(f"- ... and {len(working_tree) - 20} more")
+    else:
+        handoff_lines.append("- Working tree is clean.")
+    handoff_lines.append("")
+
+    handoff_lines.append("### Recent Failed CLI Calls")
+    handoff_lines.append("")
+    if recent_failures:
+        for item in recent_failures:
+            handoff_lines.append(f"- {item}")
+    else:
+        handoff_lines.append("- No failed CLI calls recorded in the selected range.")
+    handoff_lines.append("")
+
+    handoff_lines.append("## Suggested Next Actions")
+    handoff_lines.append("")
+    for index, action in enumerate(deduped_actions[:4], start=1):
+        handoff_lines.append(f"{index}. {action}")
+    handoff_lines.append("")
+
+    handoff_lines.append("## Verification Checklist")
+    handoff_lines.append("")
+    handoff_lines.append("- `git status --short`")
+    handoff_lines.append("- `poe lint` (or project-specific lint command)")
+    handoff_lines.append("- `poe test` (or focused test command)")
+    handoff_lines.append("")
+
+    handoff_lines.append("## Resume Prompt")
+    handoff_lines.append("")
+    handoff_lines.append(f"Use `{prompt_file.name}` in the next session.")
+    handoff_lines.append("")
+    handoff_lines.append("---")
+    handoff_lines.append(f"*Generated by checkpointing skill at {timestamp}*")
+
+    handoff_file.write_text("\n".join(handoff_lines), encoding="utf-8")
+
+    resume_prompt_lines: list[str] = []
+    resume_prompt_lines.append("# Resume Prompt")
+    resume_prompt_lines.append("")
+    resume_prompt_lines.append("Copy the following block into the first message of your next session:")
+    resume_prompt_lines.append("")
+    resume_prompt_lines.append("```text")
+    resume_prompt_lines.append("このプロジェクトの作業を再開します。まず handoff を読んで状況整理してください。")
+    resume_prompt_lines.append(f"- Handoff file: `.claude/handoffs/{handoff_file.name}`")
+    resume_prompt_lines.append(f"- Goal: {goal if goal else '(No explicit goal provided)'}")
+    resume_prompt_lines.append("")
+    resume_prompt_lines.append("進め方:")
+    resume_prompt_lines.append("1. Snapshot / Open Work / Suggested Next Actions を要約")
+    resume_prompt_lines.append("2. 最初の1手を提案し、承認後に実行")
+    resume_prompt_lines.append("3. 変更後に Verification Checklist のコマンドを実行")
+    resume_prompt_lines.append("4. 終了前に `/handoff` を更新")
+    resume_prompt_lines.append("```")
+
+    prompt_file.write_text("\n".join(resume_prompt_lines), encoding="utf-8")
+
+    return handoff_file, prompt_file
 
 
 def summarize_entries(entries: list[dict]) -> dict[str, list[dict]]:
@@ -476,6 +675,7 @@ Examples:
   python checkpoint.py --full             # Create full checkpoint file
   python checkpoint.py --full --since 2026-01-26  # Full checkpoint since date
   python checkpoint.py --full --analyze   # Full checkpoint + skill analysis prompt
+  python checkpoint.py --handoff --goal "Continue API auth refactor"  # Handoff pack
         """,
     )
     parser.add_argument(
@@ -492,7 +692,33 @@ Examples:
         action="store_true",
         help="Output skill analysis prompt (use with --full)",
     )
+    parser.add_argument(
+        "--handoff",
+        action="store_true",
+        help="Create handoff summary + resume prompt for the next session",
+    )
+    parser.add_argument(
+        "--goal",
+        help="Optional goal statement for handoff mode",
+    )
     args = parser.parse_args()
+
+    if args.handoff and args.full:
+        print("Error: --handoff cannot be combined with --full")
+        return
+
+    if args.handoff and args.analyze:
+        print("Error: --handoff cannot be combined with --analyze")
+        return
+
+    if args.handoff:
+        print("Creating handoff package...")
+        handoff_file, prompt_file = generate_handoff_package(args.since, args.goal)
+
+        print(f"\nHandoff created: {handoff_file}")
+        print(f"Resume prompt created: {prompt_file}")
+        print("\nUse the resume prompt in the first message of your next session.")
+        return
 
     if args.full:
         # Full checkpoint mode

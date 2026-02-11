@@ -97,6 +97,7 @@ gemini login
 │   │   ├── plan/                # 実装計画作成
 │   │   ├── tdd/                 # テスト駆動開発
 │   │   ├── checkpointing/       # セッション永続化
+│   │   ├── handoff/             # 次セッション引き継ぎ
 │   │   ├── codex-system/        # Codex CLI連携
 │   │   ├── gemini-system/       # Gemini CLI連携
 │   │   └── ...
@@ -186,6 +187,20 @@ Red-Green-Refactorサイクルで実装します。
 /checkpointing --analyze    # 分析: 再利用可能なスキルパターン発見
 ```
 
+### `/handoff` — 次セッション引き継ぎ
+
+Amp-style の handoff パッケージ（作業サマリー + 再開プロンプト）を生成します。
+
+```bash
+/handoff
+/handoff --goal "次セッションの最優先目標"
+/handoff --since "2026-02-10" --goal "残タスクを完了する"
+```
+
+**生成物:**
+- `.claude/handoffs/YYYY-MM-DD-HHMMSS.md`
+- `.claude/handoffs/YYYY-MM-DD-HHMMSS.prompt.md`
+
 ### `/codex-system` — Codex CLI連携
 
 設計判断・デバッグ・トレードオフ分析に使用します。
@@ -254,6 +269,7 @@ uv run ruff check .
 | `lint-on-save.py` | ファイル保存 | 自動lint実行 |
 | `check-codex-before-write.py` | ファイル書き込み前 | Codex相談提案 |
 | `log-cli-tools.py` | Codex/Gemini実行 | 入出力ログ記録 |
+| `remind-session-end.py` | SessionEnd | PLAN.md と `/handoff` の更新リマインド |
 
 ## 更新履歴（2026-02-10）
 

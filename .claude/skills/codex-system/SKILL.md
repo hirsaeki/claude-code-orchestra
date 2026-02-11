@@ -75,11 +75,6 @@ For quick questions expecting 1-2 sentence answers (run from project root):
 codex exec --skip-git-repo-check --sandbox read-only --full-auto "Brief question" 2>> .claude/logs/cli-tools.stderr.log
 ```
 
-### Patch Application on Windows (Codex CLI)
-
-When applying patches in Windows environments, prefer direct `codex.exe` invocation
-over `apply_patch.bat` wrapper to reduce argument parsing issues.
-
 ```powershell
 # patch.diff should be UTF-8 (no BOM)
 $patch = [System.IO.File]::ReadAllText((Join-Path (Get-Location) 'patch.diff'))
