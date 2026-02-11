@@ -58,6 +58,19 @@ codex exec --skip-git-repo-check --sandbox read-only --full-auto "{task}"
 
 For implementation or test authoring, use `--sandbox workspace-write`.
 
+## Patch Application Guard (Windows)
+
+When you need to apply a patch in Windows, do **not** rely on `apply_patch.bat`.
+Use direct `codex.exe` invocation to avoid wrapper argument parsing issues.
+
+```powershell
+# patch.diff must be UTF-8 (no BOM)
+$patch = [System.IO.File]::ReadAllText((Join-Path (Get-Location) 'patch.diff'))
+codex.exe --codex-run-as-apply-patch "$patch"
+```
+
+If patch application fails, regenerate `patch.diff` with exact patch markers and retry.
+
 ## Output Format
 
 Structure your response for Claude Code to use:
