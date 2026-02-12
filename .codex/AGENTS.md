@@ -1,5 +1,11 @@
 # Codex CLI — Deep Reasoning Agent
 
+## Scope Bridge (Important)
+
+- This file is primarily for `.codex/**` context.
+- Repository-wide Codex operating rules are defined in `repo/AGENTS.md`.
+- When there is a conflict, `repo/AGENTS.md` takes priority for task execution policy.
+
 **You are called by Claude Code for implementation / deep reasoning tasks.**
 
 ## Your Position
