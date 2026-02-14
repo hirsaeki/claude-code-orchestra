@@ -26,19 +26,6 @@ def validate_path(file_path: str) -> bool:
     return True
 
 
-def get_file_path() -> str | None:
-    """Extract file path from tool input."""
-    tool_input = os.environ.get("CLAUDE_TOOL_INPUT", "")
-    if not tool_input:
-        return None
-
-    try:
-        data = json.loads(tool_input)
-        return data.get("file_path")
-    except json.JSONDecodeError:
-        return None
-
-
 def is_python_file(path: str) -> bool:
     """Check if the file is a Python file."""
     return path.endswith(".py")
@@ -62,11 +49,15 @@ def run_command(cmd: list[str], cwd: str) -> tuple[int, str, str]:
 
 
 def main() -> None:
-    file_path = get_file_path()
+    try:
+        hook_input = json.load(sys.stdin)
+    except (json.JSONDecodeError, ValueError):
+        return
+
+    file_path = hook_input.get("tool_input", {}).get("file_path", "")
     if not file_path:
         return
 
-    # Validate input
     if not validate_path(file_path):
         return
 

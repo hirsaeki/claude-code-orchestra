@@ -24,14 +24,13 @@ def validate_input(file_path: str, content: str) -> bool:
         return False
     # Check for path traversal (cross-platform)
     normalized = file_path.replace("\\", "/")
-    if ".." in normalized:
+    if any(part == ".." for part in Path(normalized).parts):
         return False
     return True
 
 
-# Patterns that suggest design/architecture decisions
-DESIGN_INDICATORS = [
-    # File patterns
+# Patterns that suggest design/architecture decisions (checked against file path)
+PATH_INDICATORS = [
     "DESIGN.md",
     "ARCHITECTURE.md",
     "architecture",
@@ -45,8 +44,10 @@ DESIGN_INDICATORS = [
     "/core/",
     "config",
     "settings",
+]
 
-    # Code patterns in content
+# Code patterns checked against content (Python files only)
+CONTENT_INDICATORS = [
     "class ",
     "interface ",
     "abstract class",
@@ -82,7 +83,7 @@ def should_suggest_codex(file_path: str, content: str | None = None) -> tuple[bo
             return False, ""
 
     # Check file path for design indicators
-    for indicator in DESIGN_INDICATORS:
+    for indicator in PATH_INDICATORS:
         if indicator.lower() in filepath_norm:
             return True, f"File path contains '{indicator}' - likely a design decision"
 
@@ -92,10 +93,11 @@ def should_suggest_codex(file_path: str, content: str | None = None) -> tuple[bo
         if len(content) > 500:
             return True, "Creating new file with significant content"
 
-        # Check for design patterns in content
-        for indicator in DESIGN_INDICATORS:
-            if indicator in content:
-                return True, f"Content contains '{indicator}' - likely architectural code"
+        # Check for design patterns in content (Python files only)
+        if filepath_norm.endswith(".py"):
+            for indicator in CONTENT_INDICATORS:
+                if indicator in content:
+                    return True, f"Content contains '{indicator}' - likely architectural code"
 
     # New files in src/ directory
     if "/src/" in filepath_norm or filepath_norm.startswith("src/"):

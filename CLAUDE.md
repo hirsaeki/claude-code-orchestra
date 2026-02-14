@@ -6,6 +6,15 @@ Claude Code が Codex CLI（深い推論）と Gemini CLI（大規模リサー�
 
 ---
 
+## Policy Source (CRITICAL)
+
+サブエージェント実行ポリシーの**唯一の正本**は `repo/AGENTS.md`。
+
+- Codex/Gemini への委譲時は `repo/AGENTS.md` のルールを最優先で適用する
+- 個別ガイド（`.codex/AGENTS.md`, `.gemini/GEMINI.md`）と衝突する場合は `repo/AGENTS.md` を優先する
+
+---
+
 ## Why This Exists
 
 | Agent | Strength | Use For |

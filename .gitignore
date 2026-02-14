@@ -53,8 +53,9 @@ Thumbs.db
 logs/
 .claude/logs/
 
-# Checkpoints (session-specific, may contain sensitive info)
+# Checkpoints & handoffs (session-specific, may contain sensitive info)
 .claude/checkpoints/
+.claude/handoffs/
 
 # Jupyter
 .ipynb_checkpoints/

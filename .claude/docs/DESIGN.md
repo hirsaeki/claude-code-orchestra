@@ -1,5 +1,9 @@
 # Project Design Document
 
+> **Template note**: This is a starter template. The `design-tracker` skill
+> auto-populates sections below as you make architecture and implementation
+> decisions during conversations. Delete this note once you start your project.
+
 > This document tracks design decisions made during conversations.
 > Updated automatically by the `design-tracker` skill.
 

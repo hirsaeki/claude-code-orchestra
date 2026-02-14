@@ -64,7 +64,7 @@ uv run ruff format .
 
 ```toml
 [tool.ruff]
-target-version = "py312"
+target-version = "py311"
 line-length = 88
 
 [tool.ruff.lint]
@@ -86,14 +86,14 @@ quote-style = "double"
 
 ```bash
 # Run type check
-uv run ty check src\\
+uv run ty check .
 ```
 
 ### ty Features
 
 - Fast Rust-based type checker (by Astral)
 - Same ecosystem as ruff / uv
-- mypy-compatible type annotations
+- PEP-compliant type annotations
 
 ## Notebooks: marimo
 
@@ -135,9 +135,9 @@ Manage multiple tool executions in `pyproject.toml` scripts or poe:
 
 ```toml
 [tool.poe.tasks]
-lint = "ruff check . && ruff format --check ."
-format = "ruff check --fix . && ruff format ."
-typecheck = "ty check src/"
+lint = "ruff check . --fix"
+format = "ruff format ."
+typecheck = "ty check ."
 test = "pytest -v"
 all = ["lint", "typecheck", "test"]
 ```
@@ -154,7 +154,7 @@ uv venv
 uv sync --all-extras
 
 # Quality check (all)
-uv run ruff check . && uv run ruff format --check . && uv run ty check src\\ && uv run pytest
+uv run ruff check . && uv run ruff format --check . && uv run ty check . && uv run pytest
 
 # Or via poe
 poe all
@@ -164,5 +164,5 @@ poe all
 
 - [ ] `uv run ruff check .` passes
 - [ ] `uv run ruff format --check .` passes
-- [ ] `uv run ty check src/` passes
+- [ ] `uv run ty check .` passes
 - [ ] `uv run pytest` passes

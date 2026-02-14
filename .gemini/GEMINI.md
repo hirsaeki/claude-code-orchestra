@@ -30,7 +30,7 @@ You provide **research and analysis** that benefits from your 1M token context.
 |------|-------------|
 | Design decisions | Codex |
 | Debugging | Codex |
-| Code implementation | Claude Code |
+| Code implementation | Codex |
 | File editing | Claude Code |
 
 ## Shared Context Access
@@ -50,10 +50,12 @@ This allows Claude Code and Codex to reference your findings.
 
 ## How You're Called
 
-```powershell
-gemini -p "{research question}" 2>$null
-gemini -p "{question}" < file.pdf 2>$null
+```bash
+gemini -p "{research question}" 2>> .claude/logs/cli-tools.stderr.log
+gemini -p "{question}" < file.pdf 2>> .claude/logs/cli-tools.stderr.log
 ```
+
+Never use stderr discard (`2>/dev/null` or `2>$null`) in default examples.
 
 ## Output Format
 

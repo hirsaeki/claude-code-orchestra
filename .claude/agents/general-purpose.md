@@ -49,62 +49,15 @@ You handle tasks that preserve the main orchestrator's context:
 
 **You can and should call Codex/Gemini directly within this subagent.**
 
-## Calling Codex CLI
+## Calling Codex / Gemini CLI
 
-When design decisions, debugging, or deep analysis is needed:
-
-**IMPORTANT**: Always run from project root, never `cd` to subdirectory first.
-Specify target directory in the prompt if needed.
-
-```bash
-# Analysis (read-only, run from project root)
-codex exec --skip-git-repo-check --sandbox read-only --full-auto "{question}"
-
-# Implementation work (can write files)
-codex exec --skip-git-repo-check --sandbox workspace-write --full-auto "Work on files in {target/dir/}. {task}"
-
-# If machine-readable progress is needed
-codex exec --skip-git-repo-check --sandbox read-only --full-auto --json "{question}" 2>> .claude/logs/cli-tools.stderr.log
-
-# If stderr noise must be reduced, redirect to a file (do not discard)
-codex exec --skip-git-repo-check --sandbox read-only --full-auto "{question}" 2>> .claude/logs/cli-tools.stderr.log
-```
-
-```powershell
-# patch.diff should be UTF-8 (no BOM)
-$patch = [System.IO.File]::ReadAllText((Join-Path (Get-Location) 'patch.diff'))
-codex.exe --codex-run-as-apply-patch "$patch"
-```
+> **Full command reference**: `.claude/rules/cli-reference.md`
 
 **When to call Codex:**
 - Design decisions: "How should I structure this?"
 - Debugging: "Why isn't this working?"
 - Trade-offs: "Which approach is better?"
 - Code review: "Review this implementation"
-
-## Calling Gemini CLI
-
-When research or large-scale analysis is needed:
-
-**IMPORTANT**: Always run from project root, never `cd` to subdirectory first.
-Specify target directory in the prompt or `--include-directories` if needed.
-
-```bash
-# Research (run from project root)
-gemini -p "{research question}"
-
-# Codebase analysis (. = project root)
-gemini -p "{question}" --include-directories .
-
-# Subdirectory analysis
-gemini -p "Analyze src/auth/" --include-directories src/auth
-
-# Multimodal (PDF, video, audio) - use --file option or pipe via cmd/WSL
-gemini -p "{extraction prompt}" --file "C:\path\to\file"
-
-# If stderr noise must be reduced, redirect to a file (do not discard)
-gemini -p "{research question}" 2>> .claude/logs/cli-tools.stderr.log
-```
 
 **When to call Gemini:**
 - Library research: "Best practices for X in 2025"

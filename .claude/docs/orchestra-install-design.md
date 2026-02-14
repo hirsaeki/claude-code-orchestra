@@ -1,5 +1,8 @@
 # Orchestra Installer Design (Windows / Interactive)
 
+> **Status: Design Draft — Not yet implemented.**
+> This document describes a planned installer. No code exists yet.
+
 ## Purpose
 
 Provide a safe, repeatable way to install the Claude Code Orchestra template into an **existing** project on Windows.

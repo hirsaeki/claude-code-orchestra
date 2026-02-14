@@ -57,72 +57,12 @@ metadata:
 
 ## How to Consult
 
-### Recommended: Subagent Pattern
+> **Command syntax, subagent patterns, and output locations**:
+> see `.claude/rules/cli-reference.md`
 
-**Use Task tool with `subagent_type='general-purpose'` to preserve main context.**
-
-```
-Task tool parameters:
-- subagent_type: "general-purpose"
-- run_in_background: true (optional, for parallel work)
-- prompt: |
-    Research: {topic}
-
-    # Run from project root, never cd first
-    gemini -p "{research question}" 2>> .claude/logs/cli-tools.stderr.log
-
-    Save full output to: .claude/docs/research/{topic}.md
-    Return CONCISE summary (5-7 bullet points).
-```
-
-### Direct Call (Short Questions Only)
-
-For quick questions expecting brief answers (run from project root):
-
-```bash
-gemini -p "Brief question" 2>> .claude/logs/cli-tools.stderr.log
-```
-
-### CLI Options Reference
-
-**IMPORTANT**: Always run from project root, never `cd` to subdirectory first.
-
-```bash
-# Codebase analysis (. = project root)
-gemini -p "{question}" --include-directories . 2>> .claude/logs/cli-tools.stderr.log
-
-# Subdirectory analysis
-gemini -p "Analyze src/auth/" --include-directories src/auth 2>> .claude/logs/cli-tools.stderr.log
-
-# Multimodal (PDF/video/audio)
-gemini -p "{prompt}" --file "C:\path\to\file.pdf" 2>> .claude/logs/cli-tools.stderr.log
-
-# JSON output
-gemini -p "{question}" --output-format json 2>> .claude/logs/cli-tools.stderr.log
-```
-
-### Workflow (Subagent)
-
-1. **Spawn subagent** with Gemini research prompt
-2. **Continue your work** → Subagent runs in parallel
-3. **Receive summary** → Subagent returns key findings
-4. **Full output saved** → `.claude/docs/research/{topic}.md`
-
-## Language Protocol
-
-1. Ask Gemini in **English**
-2. Receive response in **English**
-3. Synthesize and apply findings
-4. Report to user in **Japanese**
-
-## Output Location
-
-Save Gemini research results to:
-```
-.claude/docs/research/{topic}.md
-```
-
-This allows Claude and Codex to reference the research later.
+Use Task tool with `subagent_type='general-purpose'` to preserve main context.
+Direct Bash call is acceptable only for quick questions expecting brief answers.
+Save full output to `.claude/docs/research/{topic}.md`.
 
 ## Task Templates
 

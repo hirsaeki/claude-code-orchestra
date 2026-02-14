@@ -21,6 +21,11 @@ SENSITIVE_PATTERNS = [
     re.compile(r"\bsk-[A-Za-z0-9_-]{10,}\b"),
     re.compile(r"\bAIza[0-9A-Za-z_-]{20,}\b"),
     re.compile(r"\bghp_[A-Za-z0-9]{20,}\b"),
+    re.compile(r"\bAKIA[0-9A-Z]{16}\b"),
+    re.compile(r"\bxox[bpras]-[A-Za-z0-9\-]+\b"),
+    re.compile(r"\beyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}"),
+    re.compile(r"Bearer\s+[A-Za-z0-9\-._~+/]{20,}"),
+    re.compile(r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b"),
 ]
 
 
@@ -32,34 +37,35 @@ def redact_sensitive(text: str) -> str:
     return redacted
 
 
-def extract_codex_prompt(command: str) -> str | None:
-    """Extract prompt from codex exec --skip-git-repo-check command."""
-    # Pattern: codex exec ... "prompt" or codex exec ... 'prompt'
+def extract_quoted_string(command: str, prefix_pattern: str) -> str | None:
+    """Extract a quoted string following a prefix pattern.
+
+    Handles double quotes, single quotes, and $'...' syntax.
+    Tolerates trailing redirects like 2>> file.
+    """
     patterns = [
-        r'codex\s+exec\s+.*?--full-auto\s+"([^"]+)"',
-        r"codex\s+exec\s+.*?--full-auto\s+'([^']+)'",
-        r'codex\s+exec\s+.*?"([^"]+)"',
-        r"codex\s+exec\s+.*?'([^']+)'",
+        prefix_pattern + r'''\s+"((?:[^"\\]|\\.)*)"''',
+        prefix_pattern + r"""\s+'((?:[^'\\]|\\.)*)'""",
+        prefix_pattern + r"""\s+\$'((?:[^'\\]|\\.)*)'""",
     ]
-    for pattern in patterns:
-        match = re.search(pattern, command, re.DOTALL)
+    for pat in patterns:
+        match = re.search(pat, command, re.DOTALL)
         if match:
             return match.group(1).strip()
     return None
+
+
+def extract_codex_prompt(command: str) -> str | None:
+    """Extract prompt from codex exec command."""
+    result = extract_quoted_string(command, r"codex\s+exec\s+.*?--full-auto")
+    if result:
+        return result
+    return extract_quoted_string(command, r"codex\s+exec\s+\S+")
 
 
 def extract_gemini_prompt(command: str) -> str | None:
     """Extract prompt from gemini command."""
-    # Pattern: gemini -p "prompt" or gemini -p 'prompt'
-    patterns = [
-        r'gemini\b.*?-p\s+"([^"]+)"',
-        r"gemini\b.*?-p\s+'([^']+)'",
-    ]
-    for pattern in patterns:
-        match = re.search(pattern, command, re.DOTALL)
-        if match:
-            return match.group(1).strip()
-    return None
+    return extract_quoted_string(command, r"gemini\b.*?-p")
 
 
 def extract_model(command: str) -> str | None:
@@ -94,9 +100,28 @@ def truncate_text(text: str, max_length: int = 2000) -> str:
     return text[:max_length] + f"... [truncated, {len(text)} total chars]"
 
 
+MAX_LOG_SIZE = 5 * 1024 * 1024
+
+
+def rotate_log_if_needed() -> None:
+    """Rotate log file if it exceeds MAX_LOG_SIZE (5 MB)."""
+    if not LOG_FILE.exists():
+        return
+    try:
+        if LOG_FILE.stat().st_size < MAX_LOG_SIZE:
+            return
+    except OSError:
+        return
+    rotated = LOG_FILE.with_suffix(".jsonl.1")
+    if rotated.exists():
+        rotated.unlink()
+    LOG_FILE.rename(rotated)
+
+
 def log_entry(entry: dict) -> None:
     """Append entry to JSONL log file."""
     LOG_DIR.mkdir(parents=True, exist_ok=True)
+    rotate_log_if_needed()
     with open(LOG_FILE, "a", encoding="utf-8") as f:
         f.write(json.dumps(entry, ensure_ascii=False) + "\n")
 
@@ -185,10 +210,6 @@ def main() -> None:
         prompt = extract_gemini_prompt(command)
         model = "gemini-3-pro-preview"
 
-    if not prompt:
-        # Could not extract prompt, skip logging
-        return
-
     # Determine success
     success = exit_code == 0
     has_output = bool(stdout or stderr)
@@ -199,7 +220,7 @@ def main() -> None:
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "tool": tool,
         "model": model,
-        "prompt": truncate_text(prompt),
+        "prompt": truncate_text(prompt) if prompt else None,
         "stdout": truncate_text(stdout) if stdout else "",
         "stderr": truncate_text(stderr) if stderr else "",
         "response": truncate_text(response) if response else "",

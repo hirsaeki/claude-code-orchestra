@@ -56,6 +56,40 @@ SIMPLE_ERRORS = [
 ]
 
 
+def parse_tool_response(hook_input: dict) -> tuple[str, int]:
+    """Extract output text and exit_code from hook payload (supports multiple schemas)."""
+    tool_response = hook_input.get("tool_response")
+    tool_output = hook_input.get("tool_output")
+
+    if isinstance(tool_response, dict) and any(
+        key in tool_response for key in ("stdout", "stderr", "content", "exit_code")
+    ):
+        stdout = str(tool_response.get("stdout", "") or tool_response.get("content", "") or "")
+        stderr = str(tool_response.get("stderr", "") or "")
+        exit_code = tool_response.get("exit_code", 0)
+        if not isinstance(exit_code, int):
+            exit_code = 0
+        output_text = stdout if stdout else stderr
+        return output_text, exit_code
+
+    if isinstance(tool_response, str):
+        return tool_response, 0
+
+    if isinstance(tool_output, dict):
+        stdout = str(tool_output.get("stdout", "") or tool_output.get("content", "") or "")
+        stderr = str(tool_output.get("stderr", "") or "")
+        exit_code = tool_output.get("exit_code", 0)
+        if not isinstance(exit_code, int):
+            exit_code = 0
+        output_text = stdout if stdout else stderr
+        return output_text, exit_code
+
+    if isinstance(tool_output, str):
+        return tool_output, 0
+
+    return "", 0
+
+
 def is_test_or_build_command(command: str) -> bool:
     """Check if the command runs tests or builds."""
     command_lower = command.lower()
@@ -99,15 +133,19 @@ def main():
             sys.exit(0)
 
         tool_input = data.get("tool_input", {})
-        tool_output = data.get("tool_output", "")
+        tool_output, exit_code = parse_tool_response(data)
         command = tool_input.get("command", "")
 
         # Check if it's a test/build command
         if not is_test_or_build_command(command):
             sys.exit(0)
 
-        # Check for complex failures
-        has_failure, reason = has_complex_failure(tool_output)
+        # Non-zero exit_code on a test/build command is a failure
+        if exit_code != 0:
+            reason = f"Command failed with exit_code={exit_code}"
+            has_failure = True
+        else:
+            has_failure, reason = has_complex_failure(tool_output)
 
         if has_failure:
             output = {

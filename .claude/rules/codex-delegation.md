@@ -77,70 +77,12 @@ Ask yourself: "Am I about to make a non-trivial decision?"
 - YES → Consult Codex first
 - NO → Proceed with execution
 
-## How to Consult (via Subagent)
+## How to Consult
 
-**IMPORTANT: Use subagent to preserve main context.**
+> **Command syntax, sandbox modes, patch application, and subagent patterns**:
+> see `.claude/rules/cli-reference.md`
 
-### Recommended: Subagent Pattern
-
-Use Task tool with `subagent_type: "general-purpose"`:
-
-```
-Task tool parameters:
-- subagent_type: "general-purpose"
-- run_in_background: true (for parallel work)
-- prompt: |
-    {Task description}
-
-    Call Codex CLI:
-    # IMPORTANT: Run from project root, never cd to subdirectory first
-    # Specify target directory in the prompt if needed
-    codex exec --skip-git-repo-check --sandbox read-only --full-auto "
-    [Work on files in {target/directory/}.] {Question for Codex}
-    " 2>> .claude/logs/cli-tools.stderr.log 
-
-    Return CONCISE summary:
-    - Key recommendation
-    - Main rationale (2-3 points)
-    - Any concerns or risks
-```
-
-### Direct Call (Only When Necessary)
-
-Only use direct Bash call when:
-- Quick, simple question (< 1 paragraph response expected)
-- Subagent overhead not justified
-
-```bash
-# Only for simple queries (run from project root, never cd first)
-# Specify target directory in the prompt if needed: "Work on src/auth/. ..."
-codex exec --skip-git-repo-check --sandbox read-only --full-auto "Brief question" 2>> .claude/logs/cli-tools.stderr.log 
-```
-
-```powershell
-# patch.diff should be UTF-8 (no BOM)
-$patch = [System.IO.File]::ReadAllText((Join-Path (Get-Location) 'patch.diff'))
-codex.exe --codex-run-as-apply-patch "$patch"
-```
-
-### Sandbox Modes
-
-| Mode | Sandbox | Use Case |
-|------|---------|----------|
-| Analysis | `read-only` | Design review, debugging analysis, trade-offs |
-| Work | `workspace-write` | Implement, fix, refactor (subagent recommended) |
-
-**Language protocol:**
-1. Ask Codex in **English**
-2. Subagent receives response in **English**
-3. Subagent summarizes and returns to main
-4. Main reports to user in **Japanese**
-
-## Why Subagent Pattern?
-
-- **Context preservation**: Main orchestrator stays lightweight
-- **Full analysis**: Subagent can process entire Codex response
-- **Concise handoff**: Main only receives actionable summary
-- **Parallel work**: Background subagents enable concurrent tasks
+**IMPORTANT: Use subagent (Task tool) to preserve main context.**
+Direct Bash call is acceptable only for quick questions expecting < 1 paragraph.
 
 **Don't hesitate to delegate. Subagents + Codex = efficient collaboration.**

@@ -83,118 +83,14 @@ Skip Gemini for:
 - Simple file operations (do directly)
 - Running tests/linting (do directly)
 
-## How to Consult (via Subagent)
+## How to Consult
 
-**IMPORTANT: Use subagent to preserve main context.**
+> **Command syntax, subagent patterns, and output locations**:
+> see `.claude/rules/cli-reference.md`
 
-### Recommended: Subagent Pattern
+**IMPORTANT: Use subagent (Task tool) to preserve main context.**
+Direct Bash call is acceptable only for quick questions expecting brief answers.
 
-Use Task tool with `subagent_type: "general-purpose"`:
-
-```
-Task tool parameters:
-- subagent_type: "general-purpose"
-- run_in_background: true (for parallel work)
-- prompt: |
-    Research: {topic}
-
-    1. Call Gemini CLI (run from project root, never cd first):
-       # Specify target directory in prompt if needed
-       gemini -p "{research question}" 2>> .claude/logs/cli-tools.stderr.log 
-
-    2. Save full output to: .claude/docs/research/{topic}.md
-
-    3. Return CONCISE summary (5-7 bullet points):
-       - Key findings
-       - Recommended approach
-       - Important caveats
-```
-
-### Subagent Patterns by Task Type
-
-**Research Pattern:**
-```
-prompt: |
-  Research best practices for {topic}.
-
-  # Run from project root, never cd first
-  gemini -p "Research: {topic}. Include recommended approaches,
-  common pitfalls, and library recommendations." 2>> .claude/logs/cli-tools.stderr.log 
-
-  Save to .claude/docs/research/{topic}.md
-  Return 5-7 key bullet points.
-```
-
-**Codebase Analysis Pattern:**
-```
-prompt: |
-  Analyze codebase for {purpose}.
-
-  # Run from project root; use absolute path or . for entire project
-  gemini -p "Analyze architecture, key modules, data flow,
-  and entry points." --include-directories . 2>> .claude/logs/cli-tools.stderr.log 
-
-  Save to .claude/docs/research/codebase-analysis.md
-  Return architecture summary and key insights.
-```
-
-**Multimodal Pattern:**
-```
-prompt: |
-  Extract information from {file}.
-
-  gemini -p "{extraction prompt}" --file "{file_path}" 2>> .claude/logs/cli-tools.stderr.log 
-
-  Save to .claude/docs/research/{output}.md
-  Return key extracted information.
-```
-
-### Step 2: Continue Your Work
-
-While subagent is processing, you can:
-- Work on other files
-- Run tests
-- Spawn another subagent for Codex consultation
-
-### Step 3: Receive Summary
-
-Subagent returns concise summary. Full output available in `.claude/docs/research/` if needed.
-
-## Gemini CLI Commands Reference
-
-For use within subagents:
-
-**IMPORTANT**: Always run from project root, never `cd` to subdirectory first.
-Specify target directory in the prompt if needed.
-
-```bash
-# Research (run from project root)
-gemini -p "{question}" 2>> .claude/logs/cli-tools.stderr.log 
-
-# Codebase analysis (. = project root)
-gemini -p "{question}" --include-directories . 2>> .claude/logs/cli-tools.stderr.log 
-
-# Subdirectory analysis (specify in prompt or use absolute path)
-gemini -p "Analyze files in src/auth/" --include-directories src/auth 2>> .claude/logs/cli-tools.stderr.log 
-
-# Multimodal
-gemini -p "{prompt}" --file "C:\path\to\file.pdf" 2>> .claude/logs/cli-tools.stderr.log 
-
-# JSON output
-gemini -p "{question}" --output-format json 2>> .claude/logs/cli-tools.stderr.log 
-```
-
-**Language protocol:**
-1. Ask Gemini in **English**
-2. Subagent receives response in **English**
-3. Subagent summarizes and saves full output
-4. Main receives summary, reports to user in **Japanese**
-
-## Why Subagent Pattern?
-
-- **Context preservation**: Main orchestrator stays lightweight
-- **Full capture**: Subagent can save entire Gemini output to file
-- **Concise handoff**: Main only receives key findings
-- **Parallel work**: Background subagents enable concurrent research
+Save full Gemini output to `.claude/docs/research/{topic}.md` for persistence.
 
 **Use Gemini (via subagent) for research, Codex (via subagent) for reasoning, Claude for orchestration.**

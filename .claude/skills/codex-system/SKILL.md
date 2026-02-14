@@ -47,59 +47,11 @@ metadata:
 
 ## How to Consult
 
-### Recommended: Subagent Pattern
+> **Command syntax, sandbox modes, patch application, and subagent patterns**:
+> see `.claude/rules/cli-reference.md`
 
-**Use Task tool with `subagent_type='general-purpose'` to preserve main context.**
-
-```
-Task tool parameters:
-- subagent_type: "general-purpose"
-- run_in_background: true (optional, for parallel work)
-- prompt: |
-    Consult Codex about: {topic}
-
-    # Run from project root, never cd first
-    # Specify target directory in prompt if needed
-    codex exec --skip-git-repo-check --sandbox read-only --full-auto "
-    {question for Codex}
-    " 2>> .claude/logs/cli-tools.stderr.log
-
-    Return CONCISE summary (key recommendation + rationale).
-```
-
-### Direct Call (Short Questions Only)
-
-For quick questions expecting 1-2 sentence answers (run from project root):
-
-```bash
-codex exec --skip-git-repo-check --sandbox read-only --full-auto "Brief question" 2>> .claude/logs/cli-tools.stderr.log
-```
-
-```powershell
-# patch.diff should be UTF-8 (no BOM)
-$patch = [System.IO.File]::ReadAllText((Join-Path (Get-Location) 'patch.diff'))
-codex.exe --codex-run-as-apply-patch "$patch"
-```
-
-### Workflow (Subagent)
-
-1. **Spawn subagent** with Codex consultation prompt
-2. **Continue your work** → Subagent runs in parallel
-3. **Receive summary** → Subagent returns concise insights
-
-### Sandbox Modes
-
-| Mode | Use Case |
-|------|----------|
-| `read-only` | Analysis, review, debugging advice |
-| `workspace-write` | Implementation, refactoring, fixes |
-
-## Language Protocol
-
-1. Ask Codex in **English**
-2. Receive response in **English**
-3. Execute based on advice (or let Codex execute)
-4. Report to user in **Japanese**
+Use Task tool with `subagent_type='general-purpose'` to preserve main context.
+Direct Bash call is acceptable only for quick questions expecting 1-2 sentence answers.
 
 ## Task Templates
 

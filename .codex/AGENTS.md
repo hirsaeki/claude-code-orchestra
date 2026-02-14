@@ -66,16 +66,8 @@ For implementation or test authoring, use `--sandbox workspace-write`.
 
 ## Patch Application Guard (Windows)
 
-When you need to apply a patch in Windows, do **not** rely on `apply_patch.bat`.
-Use direct `codex.exe` invocation to avoid wrapper argument parsing issues.
-
-```powershell
-# patch.diff must be UTF-8 (no BOM)
-$patch = [System.IO.File]::ReadAllText((Join-Path (Get-Location) 'patch.diff'))
-codex.exe --codex-run-as-apply-patch "$patch"
-```
-
-If patch application fails, regenerate `patch.diff` with exact patch markers and retry.
+Do **not** rely on `apply_patch.bat` — use `codex.exe --codex-run-as-apply-patch` directly.
+See `.claude/rules/cli-reference.md` for the full command example.
 
 ## Output Format
 

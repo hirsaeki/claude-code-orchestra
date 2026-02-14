@@ -6,6 +6,7 @@ Tracks file changes and suggests code review when substantial
 code has been written.
 """
 
+import hashlib
 import json
 import os
 import sys
@@ -29,8 +30,11 @@ def validate_input(file_path: str, content: str) -> bool:
     return True
 
 
-# State file to track changes in this session
-STATE_FILE = os.path.join(tempfile.gettempdir(), "claude-code-implementation-state.json")
+def get_state_file() -> str:
+    """Return a repository-specific state file path."""
+    project_dir = os.environ.get("CLAUDE_PROJECT_DIR", os.getcwd())
+    dir_hash = hashlib.md5(project_dir.encode()).hexdigest()[:8]
+    return os.path.join(tempfile.gettempdir(), f"claude-code-impl-state-{dir_hash}.json")
 
 # Thresholds for suggesting review
 MIN_FILES_FOR_REVIEW = 3
@@ -40,8 +44,9 @@ MIN_LINES_FOR_REVIEW = 100
 def load_state() -> dict:
     """Load session state."""
     try:
-        if os.path.exists(STATE_FILE):
-            with open(STATE_FILE) as f:
+        state_file = get_state_file()
+        if os.path.exists(state_file):
+            with open(state_file) as f:
                 return json.load(f)
     except Exception:
         pass
@@ -51,7 +56,7 @@ def load_state() -> dict:
 def save_state(state: dict):
     """Save session state."""
     try:
-        with open(STATE_FILE, "w") as f:
+        with open(get_state_file(), "w") as f:
             json.dump(state, f)
     except Exception:
         pass

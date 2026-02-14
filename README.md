@@ -45,6 +45,18 @@ npm install -g @google/gemini-cli
 gemini login
 ```
 
+## Windows Setup (Symlinks)
+
+このテンプレートは `.codex/skills/design-tracker` にシンボリックリンクを使用しています。
+Windows でクローンする場合、以下の設定が必要です:
+
+1. **Developer Mode を有効化**: Settings → Update & Security → For developers → Developer Mode
+2. **git でシンボリックリンクを有効化**:
+   ```bash
+   git config --global core.symlinks true
+   ```
+3. **リポジトリを再クローン**（既存クローンでシンボリックリンクが壊れている場合）
+
 ## Architecture
 
 ```
@@ -236,7 +248,7 @@ Amp-style の handoff パッケージ（作業サマリー + 再開プロンプ�
 |--------|------|
 | **uv** | パッケージ管理（pip禁止） |
 | **ruff** | リント・フォーマット |
-| **mypy** | 型チェック |
+| **ty** | 型チェック |
 | **pytest** | テスト |
 | **poethepoet** | タスクランナー |
 
@@ -250,7 +262,7 @@ uv sync                    # 依存関係同期
 
 # 品質チェック
 poe lint                   # ruff check + format
-poe typecheck              # mypy
+poe typecheck              # ty
 poe test                   # pytest
 poe all                    # 全チェック実行
 

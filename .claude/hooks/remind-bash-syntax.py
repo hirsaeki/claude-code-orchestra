@@ -10,7 +10,7 @@ import json
 import platform
 import sys
 
-# PowerShell-specific patterns to detect
+# High-confidence PowerShell-specific patterns (unlikely to appear in bash)
 POWERSHELL_PATTERNS = [
     # Redirection
     "2>$null",
@@ -31,12 +31,6 @@ POWERSHELL_PATTERNS = [
     "Invoke-",
     "Write-Host",
     "Write-Output",
-    # Common PowerShell parameters
-    "-Recurse",
-    "-Force",
-    "-ErrorAction",
-    "-Path",
-    "-ItemType",
 ]
 
 

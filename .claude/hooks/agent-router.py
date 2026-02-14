@@ -62,22 +62,46 @@ def validate_trigger_configuration() -> None:
     if "実装してテスト" in japanese_codex_triggers:
         raise ValueError("Invalid merged trigger found: 実装してテスト")
 
+    japanese_gemini_triggers = GEMINI_TRIGGERS.get("ja", [])
+    if "調べて" not in japanese_gemini_triggers:
+        raise ValueError("Missing required Gemini trigger: 調べて")
+    if "ライブラリ" not in japanese_gemini_triggers:
+        raise ValueError("Missing required Gemini trigger: ライブラリ")
+
 
 def detect_agent(prompt: str) -> tuple[str | None, str]:
-    """Detect which agent should handle this prompt."""
+    """Detect which agent should handle this prompt.
+
+    Scans both Codex and Gemini trigger sets. If both match,
+    Gemini is preferred (research-first philosophy: research before design).
+    """
     prompt_lower = prompt.lower()
 
-    # Check Codex triggers
+    codex_match: str | None = None
+    gemini_match: str | None = None
+
     for triggers in CODEX_TRIGGERS.values():
         for trigger in triggers:
             if trigger in prompt_lower:
-                return "codex", trigger
+                codex_match = trigger
+                break
+        if codex_match:
+            break
 
-    # Check Gemini triggers
     for triggers in GEMINI_TRIGGERS.values():
         for trigger in triggers:
             if trigger in prompt_lower:
-                return "gemini", trigger
+                gemini_match = trigger
+                break
+        if gemini_match:
+            break
+
+    if gemini_match and codex_match:
+        return "gemini", gemini_match
+    if gemini_match:
+        return "gemini", gemini_match
+    if codex_match:
+        return "codex", codex_match
 
     return None, ""
 
@@ -101,6 +125,19 @@ def run_self_test() -> int:
         print("Self-test failed: combined Japanese trigger should route to codex", file=sys.stderr)
         return 1
 
+    gemini_agent_1, gemini_trigger_1 = detect_agent("調べて")
+    if gemini_agent_1 != "gemini" or gemini_trigger_1 != "調べて":
+        print("Self-test failed: '調べて' (short JP) should route to gemini", file=sys.stderr)
+        return 1
+
+    gemini_agent_2, gemini_trigger_2 = detect_agent("ライブラリの設計")
+    if gemini_agent_2 != "gemini":
+        print(
+            "Self-test failed: 'ライブラリの設計' (both match) should route to gemini",
+            file=sys.stderr,
+        )
+        return 1
+
     return 0
 
 
@@ -114,8 +151,8 @@ def main():
         data = json.load(sys.stdin)
         prompt = data.get("prompt", "")
 
-        # Skip short prompts
-        if len(prompt) < 10:
+        # Skip truly empty/single-char prompts (Japanese triggers can be 3-4 chars)
+        if len(prompt) < 2:
             sys.exit(0)
 
         agent, trigger = detect_agent(prompt)
