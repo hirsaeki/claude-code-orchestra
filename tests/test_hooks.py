@@ -173,6 +173,42 @@ class TestLogCliTools:
         assert "important stderr info" in entry["stderr"]
 
 
+class TestNotifyHandoff:
+    HOOK = HOOKS_DIR / "notify-handoff.py"
+
+    def test_no_handoffs_no_output(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+        patched_src = self.HOOK.read_text(encoding="utf-8").replace(
+            'HANDOFFS_DIR = Path(__file__).parent.parent / "handoffs"',
+            f'HANDOFFS_DIR = Path(r"{tmp_path / "handoffs"}")',
+        )
+        patched_hook = tmp_path / "notify-handoff.py"
+        patched_hook.write_text(patched_src, encoding="utf-8")
+        stdout, stderr, code = run_hook(patched_hook, {})
+        assert code == 0
+        assert stdout.strip() == ""
+
+    def test_with_handoff_shows_notification(self, tmp_path: Path) -> None:
+        handoffs_dir = tmp_path / "handoffs"
+        handoffs_dir.mkdir()
+        (handoffs_dir / "2026-02-15-120000.prompt.md").write_text("resume", encoding="utf-8")
+
+        patched_src = self.HOOK.read_text(encoding="utf-8").replace(
+            'HANDOFFS_DIR = Path(__file__).parent.parent / "handoffs"',
+            f'HANDOFFS_DIR = Path(r"{handoffs_dir}")',
+        )
+        patched_hook = tmp_path / "notify-handoff.py"
+        patched_hook.write_text(patched_src, encoding="utf-8")
+        stdout, stderr, code = run_hook(patched_hook, {})
+        assert code == 0
+        output = json.loads(stdout)
+        ctx = output["hookSpecificOutput"]["additionalContext"]
+        assert "/handoff --resume" in ctx
+
+    def test_hook_does_not_crash_on_empty_payload(self) -> None:
+        stdout, stderr, code = run_hook(self.HOOK, {})
+        assert code == 0
+
+
 class TestAgentRouter:
     HOOK = HOOKS_DIR / "agent-router.py"
 

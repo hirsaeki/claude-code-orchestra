@@ -18,6 +18,8 @@ description: |
 
 ## Usage
 
+### 書き込み（セッション終了時）
+
 ```bash
 # 基本
 python .claude/skills/checkpointing/checkpoint.py --handoff
@@ -29,12 +31,33 @@ python .claude/skills/checkpointing/checkpoint.py --handoff --goal "次セッシ
 python .claude/skills/checkpointing/checkpoint.py --handoff --since "2026-02-10" --goal "残タスク整理"
 ```
 
+### 読み込み（セッション開始時）
+
+```bash
+# 最新のハンドオフを読み込み
+python .claude/skills/checkpointing/checkpoint.py --handoff --resume
+
+# 一覧表示
+python .claude/skills/checkpointing/checkpoint.py --handoff --list
+
+# 特定のハンドオフを読み込み（0=最新, 1=1つ前, ...）
+python .claude/skills/checkpointing/checkpoint.py --handoff --resume --index 1
+```
+
 ## Workflow
+
+### 書き込み（/handoff）
 
 1. `--goal` が未指定なら、ユーザーに「次セッションの最優先目標」を1文で確認する
 2. `checkpoint.py --handoff` を実行する
 3. 生成された `*.md` と `*.prompt.md` のパスを報告する
-4. `*.prompt.md` の内容を次セッション先頭に貼るよう案内する
+
+### 読み込み（/handoff --resume）
+
+1. セッション開始時に SessionStart hook が自動通知する
+2. `/handoff --resume` でハンドオフ内容を読み込む
+3. Snapshot / Open Work / Suggested Next Actions を要約する
+4. 最初の1手を提案し、承認後に実行する
 
 ## Output Contract
 

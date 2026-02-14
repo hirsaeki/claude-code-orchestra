@@ -665,6 +665,45 @@ def save_skill_suggestions(checkpoint_file: Path, suggestions: str) -> Path:
     return suggestions_file
 
 
+def list_handoffs(limit: int = 10) -> list[tuple[Path, Path | None]]:
+    """List available handoff packages, newest first.
+
+    Returns list of (handoff_md, prompt_md_or_None) tuples.
+    """
+    if not HANDOFFS_DIR.is_dir():
+        return []
+    handoff_files = sorted(
+        [f for f in HANDOFFS_DIR.glob("*.md") if not f.name.endswith(".prompt.md")],
+        reverse=True,
+    )
+    result: list[tuple[Path, Path | None]] = []
+    for hf in handoff_files[:limit]:
+        prompt = hf.with_suffix("").with_suffix(".prompt.md")
+        result.append((hf, prompt if prompt.exists() else None))
+    return result
+
+
+def resume_handoff(index: int = 0) -> str | None:
+    """Read and return the content of a handoff package.
+
+    index=0 means the latest handoff.  Returns the handoff summary
+    followed by the resume prompt (if present).
+    """
+    handoffs = list_handoffs()
+    if not handoffs:
+        return None
+    if index >= len(handoffs):
+        return None
+
+    handoff_file, prompt_file = handoffs[index]
+    parts: list[str] = []
+    parts.append(handoff_file.read_text(encoding="utf-8"))
+    if prompt_file and prompt_file.exists():
+        parts.append("\n---\n")
+        parts.append(prompt_file.read_text(encoding="utf-8"))
+    return "\n".join(parts)
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="Checkpoint session context",
@@ -676,6 +715,9 @@ Examples:
   python checkpoint.py --full --since 2026-01-26  # Full checkpoint since date
   python checkpoint.py --full --analyze   # Full checkpoint + skill analysis prompt
   python checkpoint.py --handoff --goal "Continue API auth refactor"  # Handoff pack
+  python checkpoint.py --handoff --resume              # Load latest handoff
+  python checkpoint.py --handoff --resume --index 1    # Load second-latest
+  python checkpoint.py --handoff --list                # List available handoffs
         """,
     )
     parser.add_argument(
@@ -701,6 +743,23 @@ Examples:
         "--goal",
         help="Optional goal statement for handoff mode",
     )
+    parser.add_argument(
+        "--resume",
+        action="store_true",
+        help="Read and display the latest handoff package (use with --handoff)",
+    )
+    parser.add_argument(
+        "--list",
+        action="store_true",
+        dest="list_handoffs",
+        help="List available handoff packages (use with --handoff)",
+    )
+    parser.add_argument(
+        "--index",
+        type=int,
+        default=0,
+        help="Handoff index for --resume (0 = latest, 1 = second-latest, ...)",
+    )
     args = parser.parse_args()
 
     if args.handoff and args.full:
@@ -711,6 +770,30 @@ Examples:
         print("Error: --handoff cannot be combined with --analyze")
         return
 
+    if args.handoff and args.list_handoffs:
+        handoffs = list_handoffs()
+        if not handoffs:
+            print("No handoff packages found in .claude/handoffs/")
+            return
+        print(f"Available handoffs ({len(handoffs)}):\n")
+        for i, (hf, pf) in enumerate(handoffs):
+            marker = "→" if i == 0 else " "
+            prompt_tag = " [+prompt]" if pf else ""
+            print(f"  {marker} [{i}] {hf.name}{prompt_tag}")
+        print(f"\nUse --resume --index N to load a specific handoff.")
+        return
+
+    if args.handoff and args.resume:
+        content = resume_handoff(args.index)
+        if content is None:
+            if args.index > 0:
+                print(f"No handoff found at index {args.index}. Use --list to see available.")
+            else:
+                print("No handoff packages found in .claude/handoffs/")
+            return
+        print(content)
+        return
+
     if args.handoff:
         print("Creating handoff package...")
         handoff_file, prompt_file = generate_handoff_package(args.since, args.goal)
@@ -718,6 +801,7 @@ Examples:
         print(f"\nHandoff created: {handoff_file}")
         print(f"Resume prompt created: {prompt_file}")
         print("\nUse the resume prompt in the first message of your next session.")
+        print("Or use --resume in the next session to load it directly.")
         return
 
     if args.full:
