@@ -54,7 +54,7 @@ Direct Bash call is acceptable only for quick questions expecting 1-2 sentence a
 ### Design Review
 
 ```bash
-codex exec --skip-git-repo-check --sandbox read-only --full-auto "
+codex exec --skip-git-repo-check --sandbox read-only -a never "
 Review this design approach for: {feature}
 
 Context:
@@ -71,7 +71,7 @@ Evaluate:
 ### Debug Analysis
 
 ```bash
-codex exec --skip-git-repo-check --sandbox read-only --full-auto "
+codex exec --skip-git-repo-check --sandbox read-only -a never "
 Debug this issue:
 
 Error: {error message}

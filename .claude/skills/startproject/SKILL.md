@@ -94,7 +94,7 @@ Task tool parameters:
     Draft plan: {plan from Phase 2}
 
     1. Call Codex CLI:
-       codex exec --skip-git-repo-check --sandbox read-only --full-auto "
+       codex exec --skip-git-repo-check --sandbox read-only -a never "
        Review this implementation plan:
        {plan}
 
@@ -177,7 +177,7 @@ Task tool parameters:
 
     1. Run: git diff main...HEAD
     2. Call Codex CLI:
-       codex exec --skip-git-repo-check --sandbox read-only --full-auto "
+       codex exec --skip-git-repo-check --sandbox read-only -a never "
        Review this implementation:
        {diff output}
 

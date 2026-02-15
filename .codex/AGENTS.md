@@ -58,11 +58,12 @@ You can read project context from `.claude/`:
 ## How You're Called
 
 ```bash
-# Always run from project root (never cd to subdirectory first)
-codex exec --skip-git-repo-check --sandbox read-only --full-auto "{task}"
-```
+# Analysis (read-only, run from project root)
+codex exec --skip-git-repo-check --sandbox read-only -a never "{task}"
 
-For implementation or test authoring, use `--sandbox workspace-write`.
+# Implementation (write, run from project root)
+codex exec --skip-git-repo-check --full-auto "{task}"
+```
 
 ## Patch Application Guard (Windows)
 

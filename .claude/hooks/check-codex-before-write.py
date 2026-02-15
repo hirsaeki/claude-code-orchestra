@@ -131,7 +131,7 @@ def main():
                         "**Recommended**: Use Task tool with subagent_type='general-purpose' "
                         "to preserve main context. "
                         "(Direct call OK for quick questions, run from project root: "
-                        "`codex exec --skip-git-repo-check --sandbox read-only --full-auto '...'`)"
+                        "`codex exec --skip-git-repo-check --sandbox read-only -a never '...'`)"
                     )
                 }
             }

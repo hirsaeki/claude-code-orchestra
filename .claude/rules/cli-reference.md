@@ -16,21 +16,24 @@ Other files should link here instead of duplicating command examples.
 ### Analysis (read-only)
 
 ```bash
-codex exec --skip-git-repo-check --sandbox read-only --full-auto "{question}" 2>> .claude/logs/cli-tools.stderr.log
+codex exec --skip-git-repo-check --sandbox read-only -a never "{question}" 2>> .claude/logs/cli-tools.stderr.log
 ```
 
 ### Implementation (write)
 
 ```bash
-codex exec --skip-git-repo-check --sandbox workspace-write --full-auto "Work on files in {target/dir/}. {task}" 2>> .claude/logs/cli-tools.stderr.log
+codex exec --skip-git-repo-check --full-auto "Work on files in {target/dir/}. {task}" 2>> .claude/logs/cli-tools.stderr.log
 ```
+
+`--full-auto` is an alias for `--sandbox workspace-write -a on-request`.
+Do **not** combine `--sandbox read-only` with `--full-auto` (they conflict).
 
 ### Sandbox Modes
 
-| Mode | Flag | Use Case |
-|------|------|----------|
-| Analysis | `read-only` | Design review, debugging, trade-offs |
-| Work | `workspace-write` | Implementation, refactoring, fixes |
+| Mode | Flags | Use Case |
+|------|-------|----------|
+| Analysis | `--sandbox read-only -a never` | Design review, debugging, trade-offs |
+| Work | `--full-auto` | Implementation, refactoring, fixes |
 
 ### Patch Application (Windows)
 
@@ -87,7 +90,7 @@ Task tool parameters:
     {Task description}
     
     # Run from project root, never cd first
-    codex exec --skip-git-repo-check --sandbox read-only --full-auto "{question}" 2>> .claude/logs/cli-tools.stderr.log
+    codex exec --skip-git-repo-check --sandbox read-only -a never "{question}" 2>> .claude/logs/cli-tools.stderr.log
     
     Return CONCISE summary.
 ```

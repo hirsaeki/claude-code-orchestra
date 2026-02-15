@@ -87,7 +87,7 @@ class TestLogCliTools:
         payload = {
             "tool_name": "Bash",
             "tool_input": {
-                "command": 'codex exec --skip-git-repo-check --sandbox read-only --full-auto "test question"'
+                "command": 'codex exec --skip-git-repo-check --sandbox read-only -a never "test question"'
             },
             "tool_response": {
                 "stdout": "codex says hello",
@@ -132,7 +132,7 @@ class TestLogCliTools:
         payload = {
             "tool_name": "Bash",
             "tool_input": {
-                "command": 'codex exec --skip-git-repo-check --sandbox read-only --full-auto "q"'
+                "command": 'codex exec --skip-git-repo-check --sandbox read-only -a never "q"'
             },
             "tool_response": {"stdout": "ok", "stderr": "", "exit_code": 0},
         }
@@ -145,7 +145,7 @@ class TestLogCliTools:
         payload = {
             "tool_name": "Bash",
             "tool_input": {
-                "command": 'codex exec --skip-git-repo-check --sandbox read-only --full-auto "q"'
+                "command": 'codex exec --skip-git-repo-check --sandbox read-only -a never "q"'
             },
             "tool_response": {"stdout": "", "stderr": "error", "exit_code": 1},
         }
@@ -159,7 +159,7 @@ class TestLogCliTools:
         payload = {
             "tool_name": "Bash",
             "tool_input": {
-                "command": 'codex exec --skip-git-repo-check --sandbox read-only --full-auto "q"'
+                "command": 'codex exec --skip-git-repo-check --sandbox read-only -a never "q"'
             },
             "tool_response": {
                 "stdout": "",

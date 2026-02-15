@@ -60,6 +60,9 @@ def extract_codex_prompt(command: str) -> str | None:
     result = extract_quoted_string(command, r"codex\s+exec\s+.*?--full-auto")
     if result:
         return result
+    result = extract_quoted_string(command, r"codex\s+exec\s+.*?-a\s+never")
+    if result:
+        return result
     return extract_quoted_string(command, r"codex\s+exec\s+\S+")
 
 

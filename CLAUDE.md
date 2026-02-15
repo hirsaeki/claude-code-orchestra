@@ -69,7 +69,7 @@ Task(subagent_type="general-purpose", prompt="
 
 # IMPORTANT: Run from project root, never cd to subdirectory first
 # Specify target directory in the prompt if needed
-codex exec --skip-git-repo-check --sandbox workspace-write --full-auto \"
+codex exec --skip-git-repo-check --full-auto \"
 Work on files in {target/directory/}. {Implement task in English. Include files to modify and tests to add.}
 \"
 

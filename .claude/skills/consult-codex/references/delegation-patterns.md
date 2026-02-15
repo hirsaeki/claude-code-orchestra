@@ -40,8 +40,7 @@
 ```bash
 codex exec --skip-git-repo-check \
   --config model_reasoning_effort="high" \
-  --sandbox read-only \
-  --full-auto \
+  --sandbox read-only -a never \
   "Review the architecture of src\\auth\ module. Focus on:
    1. Single Responsibility adherence
    2. Dependency direction (should flow inward)
@@ -57,8 +56,7 @@ codex exec --skip-git-repo-check \
 ```bash
 codex exec --skip-git-repo-check \
   --config model_reasoning_effort="high" \
-  --sandbox read-only \
-  --full-auto \
+  --sandbox read-only -a never \
   "This bug has resisted 2 fix attempts:
 
    Symptom: Race condition in user session handling
@@ -78,8 +76,7 @@ codex exec --skip-git-repo-check \
 ```bash
 codex exec --skip-git-repo-check \
   --config model_reasoning_effort="xhigh" \
-  --sandbox read-only \
-  --full-auto \
+  --sandbox read-only -a never \
   "Optimize the algorithm in src\\data\aggregator.py:
 
    Current: O(n²) nested loops for data aggregation
@@ -101,8 +98,7 @@ codex exec --skip-git-repo-check \
 ```bash
 codex exec --skip-git-repo-check \
   --config model_reasoning_effort="xhigh" \
-  --sandbox read-only \
-  --full-auto \
+  --sandbox read-only -a never \
   "Security audit of src\\api\auth.py:
 
    Check for:

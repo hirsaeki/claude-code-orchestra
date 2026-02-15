@@ -165,10 +165,10 @@ def main():
                         f"[Agent Routing] Detected '{trigger}' - this task may benefit from "
                         "Codex CLI's deep reasoning capabilities. "
                         "**Run from project root (never cd first)**: "
-                        "`codex exec --skip-git-repo-check --sandbox read-only --full-auto "
+                        "`codex exec --skip-git-repo-check --sandbox read-only -a never "
                         '"{task description}"` for design decisions, debugging, or complex analysis. '
                         "For implementation or test authoring, prefer: "
-                        "`codex exec --skip-git-repo-check --sandbox workspace-write --full-auto "
+                        "`codex exec --skip-git-repo-check --full-auto "
                         '"{task description}"`.'
                     )
                 }

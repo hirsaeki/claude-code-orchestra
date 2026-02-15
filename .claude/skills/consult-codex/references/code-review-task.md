@@ -68,7 +68,7 @@ Well-implemented points
 ## Example Invocation
 
 ```bash
-codex exec --skip-git-repo-check --sandbox read-only --full-auto "
+codex exec --skip-git-repo-check --sandbox read-only -a never "
 Review this code change:
 
 ## Changes
