@@ -1,6 +1,8 @@
 ---
 name: simplify
-description: Simplify and refactor code while preserving functionality and library constraints.
+description: |
+  Simplify and refactor code while preserving functionality and library constraints.
+  Use when user says: "シンプルにして", "リファクタ", "simplify", "refactor".
 disable-model-invocation: true
 ---
 

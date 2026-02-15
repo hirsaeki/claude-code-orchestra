@@ -1,13 +1,9 @@
 ---
-name: gemini-system
+name: consult-gemini
 description: |
-  PROACTIVELY consult Gemini CLI for research, large codebase comprehension,
-  and multimodal data processing. Gemini excels at: massive context windows (1M tokens),
-  Google Search grounding, video/audio/PDF analysis, and repository-wide understanding.
-  Use for pre-implementation research, documentation analysis, and multimodal tasks.
-  Explicit triggers: "research", "investigate", "analyze video/audio/PDF", "understand codebase".
-metadata:
-  short-description: Claude Code ↔ Gemini CLI collaboration (research & multimodal)
+  Consult Gemini CLI for research, large codebase analysis, and multimodal processing
+  (PDF/video/audio). Use when user says: "調べて", "リサーチして", "ライブラリ調査",
+  "コードベース全体", "このPDFを見て", "research", "investigate", "understand codebase".
 ---
 
 # Gemini System — Research & Multimodal Specialist

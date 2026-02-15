@@ -1,6 +1,8 @@
 ---
 name: plan
-description: Create a detailed implementation plan for a feature or task. Use when user wants to plan before coding.
+description: |
+  Create a detailed implementation plan for a feature or task.
+  Use when user says: "計画して", "プラン", "plan", "how to implement".
 disable-model-invocation: true
 ---
 

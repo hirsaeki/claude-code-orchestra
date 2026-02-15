@@ -110,8 +110,8 @@ Windows でクローンする場合、以下の設定が必要です:
 │   │   ├── tdd/                 # テスト駆動開発
 │   │   ├── checkpointing/       # セッション永続化
 │   │   ├── handoff/             # 次セッション引き継ぎ
-│   │   ├── codex-system/        # Codex CLI連携
-│   │   ├── gemini-system/       # Gemini CLI連携
+│   │   ├── consult-codex/        # Codex CLI連携
+│   │   ├── consult-gemini/      # Gemini CLI連携
 │   │   └── ...
 │   │
 │   ├── hooks/                   # 自動化フック
@@ -213,7 +213,7 @@ Amp-style の handoff パッケージ（作業サマリー + 再開プロンプ�
 - `.claude/handoffs/YYYY-MM-DD-HHMMSS.md`
 - `.claude/handoffs/YYYY-MM-DD-HHMMSS.prompt.md`
 
-### `/codex-system` — Codex CLI連携
+### `/consult-codex` — Codex CLI連携
 
 設計判断・デバッグ・トレードオフ分析に使用します。
 
@@ -223,7 +223,7 @@ Amp-style の handoff パッケージ（作業サマリー + 再開プロンプ�
 - 「どちらがいい？」「比較して」
 - 「テストを書いて」「テストが落ちた」
 
-### `/gemini-system` — Gemini CLI連携
+### `/consult-gemini` — Gemini CLI連携
 
 リサーチ・大規模分析・マルチモーダル処理に使用します。
 
@@ -288,7 +288,7 @@ uv run ruff check .
 - `agent-router.py`: 日本語トリガー回帰対策（`--self-test` 追加）
 - `log-cli-tools.py`: `stderr` 収集、`success = (exit_code == 0)`、通知ノイズ抑制、`tool_response/tool_output` 両対応
 - テンプレ全体: `2>/dev/null` を `2>> .claude/logs/cli-tools.stderr.log` に統一
-- `codex-system` 系テンプレ: モデル表記を `gpt-5.3-codex` へ統一
+- `consult-codex` 系テンプレ: モデル表記を `gpt-5.3-codex` へ統一
 - `cli-logging-best-practices.md`: 実装差分（コマンドセグメント判定含む）とチェックリストを同期
 - Windows でのパッチ適用: `apply_patch.bat` ではなく `codex.exe --codex-run-as-apply-patch` を推奨（`patch.diff` は UTF-8 no BOM）
 

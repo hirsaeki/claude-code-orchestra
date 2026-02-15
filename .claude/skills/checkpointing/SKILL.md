@@ -4,8 +4,6 @@ description: |
   Save session context to agent configuration files or create full checkpoint files.
   Supports three modes: session history (default), full checkpoint (--full),
   skill analysis (--full --analyze), and handoff package generation (--handoff).
-metadata:
-  short-description: Checkpoint session context with skill extraction support
 ---
 
 # Checkpointing — セッションコンテキストの永続化

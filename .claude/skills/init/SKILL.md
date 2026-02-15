@@ -1,6 +1,8 @@
 ---
 name: init
-description: Analyze project structure and update AGENTS.md with detected tech stack, commands, and configurations.
+description: |
+  Analyze project structure and update AGENTS.md with detected tech stack, commands, and configurations.
+  Use when user says: "初期化", "セットアップ", "init", "setup project".
 disable-model-invocation: true
 ---
 

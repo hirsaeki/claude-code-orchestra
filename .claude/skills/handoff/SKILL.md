@@ -3,6 +3,8 @@ name: handoff
 description: |
   Generate an Amp-style handoff package for the next session.
   Creates both summary and resume prompt files from git + CLI logs.
+  Use when user says: "引き継ぎ", "ハンドオフ", "セッション終了",
+  "handoff", "wrap up", "end session".
 ---
 
 # Handoff Package

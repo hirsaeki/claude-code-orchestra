@@ -1,6 +1,9 @@
 ---
 name: update-design
-description: Explicitly update DESIGN.md with decisions from the current conversation. Use when you want to force a design document update.
+description: |
+  Explicitly update DESIGN.md with decisions from the current conversation.
+  Unlike design-tracker (auto), this is a manual "force update now" command.
+  Use when user says: "設計を更新", "DESIGN.mdに書いて", "update design doc".
 disable-model-invocation: true
 ---
 

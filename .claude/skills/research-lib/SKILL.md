@@ -1,6 +1,8 @@
 ---
 name: research-lib
-description: Research a library and create comprehensive documentation in .claude/docs/libraries/.
+description: |
+  Research a new library and create comprehensive documentation in .claude/docs/libraries/.
+  Use when user says: "ライブラリを調べて", "ライブラリ調査", "research library".
 disable-model-invocation: true
 ---
 

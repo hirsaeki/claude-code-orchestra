@@ -1,6 +1,9 @@
 ---
 name: update-lib-docs
-description: Update library documentation in .claude/docs/libraries/ with latest information from web search.
+description: |
+  Update existing library documentation in .claude/docs/libraries/ with latest web information.
+  Unlike research-lib (creates new), this refreshes already-documented libraries.
+  Use when user says: "ライブラリ情報を更新", "ドキュメント最新化", "update lib docs".
 disable-model-invocation: true
 ---
 

@@ -1,6 +1,8 @@
 ---
 name: tdd
-description: Implement features using Test-Driven Development (TDD) with Red-Green-Refactor cycle.
+description: |
+  Implement features using Test-Driven Development (TDD) with Red-Green-Refactor cycle.
+  Use when user says: "TDDで", "テスト駆動", "tdd", "test first".
 disable-model-invocation: true
 ---
 
