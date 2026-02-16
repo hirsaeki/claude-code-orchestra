@@ -57,12 +57,10 @@ def extract_quoted_string(command: str, prefix_pattern: str) -> str | None:
 
 def extract_codex_prompt(command: str) -> str | None:
     """Extract prompt from codex exec command."""
-    result = extract_quoted_string(command, r"codex\s+exec\s+.*?--full-auto")
-    if result:
-        return result
-    result = extract_quoted_string(command, r"codex\s+exec\s+.*?-a\s+never")
-    if result:
-        return result
+    for end_pattern in [r"--full-auto", r"-a\s+never", r"-a\s+\S+"]:
+        result = extract_quoted_string(command, rf"codex\s+exec\s+.*?{end_pattern}")
+        if result:
+            return result
     return extract_quoted_string(command, r"codex\s+exec\s+\S+")
 
 

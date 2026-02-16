@@ -168,7 +168,7 @@ def main():
                         "`codex exec --skip-git-repo-check --sandbox read-only -a never "
                         '"{task description}"` for design decisions, debugging, or complex analysis. '
                         "For implementation or test authoring, prefer: "
-                        "`codex exec --skip-git-repo-check --full-auto "
+                        "`codex exec --skip-git-repo-check --sandbox workspace-write -a never "
                         '"{task description}"`.'
                     )
                 }

@@ -22,18 +22,18 @@ codex exec --skip-git-repo-check --sandbox read-only -a never "{question}" 2>> .
 ### Implementation (write)
 
 ```bash
-codex exec --skip-git-repo-check --full-auto "Work on files in {target/dir/}. {task}" 2>> .claude/logs/cli-tools.stderr.log
+codex exec --skip-git-repo-check --sandbox workspace-write -a never "Work on files in {target/dir/}. {task}" 2>> .claude/logs/cli-tools.stderr.log
 ```
 
-`--full-auto` is an alias for `--sandbox workspace-write -a on-request`.
-Do **not** combine `--sandbox read-only` with `--full-auto` (they conflict).
+Both modes use `-a never` because Claude Code calls Codex non-interactively
+via `Bash()` and cannot respond to approval prompts.
 
 ### Sandbox Modes
 
 | Mode | Flags | Use Case |
 |------|-------|----------|
 | Analysis | `--sandbox read-only -a never` | Design review, debugging, trade-offs |
-| Work | `--full-auto` | Implementation, refactoring, fixes |
+| Work | `--sandbox workspace-write -a never` | Implementation, refactoring, fixes |
 
 ### Patch Application (Windows)
 

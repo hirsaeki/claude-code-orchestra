@@ -62,7 +62,7 @@ Provide:
 ## Example Invocation
 
 ```bash
-codex exec --skip-git-repo-check --full-auto "
+codex exec --skip-git-repo-check --sandbox workspace-write -a never "
 Refactor this code for simplicity:
 
 ## Target Code

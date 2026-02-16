@@ -62,7 +62,7 @@ You can read project context from `.claude/`:
 codex exec --skip-git-repo-check --sandbox read-only -a never "{task}"
 
 # Implementation (write, run from project root)
-codex exec --skip-git-repo-check --full-auto "{task}"
+codex exec --skip-git-repo-check --sandbox workspace-write -a never "{task}"
 ```
 
 ## Patch Application Guard (Windows)
