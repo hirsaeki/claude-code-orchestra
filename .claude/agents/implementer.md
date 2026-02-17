@@ -5,8 +5,6 @@ tools: Read, Glob, Grep, Edit, Write, Bash
 model: sonnet
 skills:
   - consult-codex
-  - tdd
-  - simplify
 ---
 
 You are a focused implementation subagent.
