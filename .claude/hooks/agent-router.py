@@ -106,6 +106,33 @@ def detect_agent(prompt: str) -> tuple[str | None, str]:
     return None, ""
 
 
+def build_codex_context(trigger: str) -> str:
+    return (
+        f"[Agent Routing] Detected '{trigger}' - this task may benefit from "
+        "Codex CLI's deep reasoning capabilities. "
+        'Prefer `Task(subagent_type="implementer")` from the main orchestrator. '
+        "If already in a subagent, do not spawn another subagent; run Codex CLI directly. "
+        "**Run from project root (never cd first)**: "
+        "`codex exec --skip-git-repo-check --sandbox read-only -a never "
+        '"{task description}"` for design decisions, debugging, or complex analysis. '
+        "For implementation or test authoring, prefer: "
+        "`codex exec --skip-git-repo-check --sandbox workspace-write -a never "
+        '"{task description}"`.'
+    )
+
+
+def build_gemini_context(trigger: str) -> str:
+    return (
+        f"[Agent Routing] Detected '{trigger}' - this task may benefit from "
+        "Gemini CLI's research capabilities. "
+        'Prefer `Task(subagent_type="researcher")` from the main orchestrator. '
+        "If already in a subagent, do not spawn another subagent; run Gemini CLI directly. "
+        "**Run from project root (never cd first)**: "
+        '`gemini -p "Research: {topic}"` '
+        "for documentation, library research, or multimodal content."
+    )
+
+
 def run_self_test() -> int:
     """Run lightweight regression checks for trigger routing."""
     validate_trigger_configuration()
@@ -138,6 +165,22 @@ def run_self_test() -> int:
         )
         return 1
 
+    codex_context = build_codex_context("テスト")
+    if 'Task(subagent_type="implementer")' not in codex_context:
+        print("Self-test failed: codex context should recommend implementer subagent", file=sys.stderr)
+        return 1
+    if "already in a subagent" not in codex_context:
+        print("Self-test failed: codex context should include no-nesting guidance", file=sys.stderr)
+        return 1
+
+    gemini_context = build_gemini_context("調べて")
+    if 'Task(subagent_type="researcher")' not in gemini_context:
+        print("Self-test failed: gemini context should recommend researcher subagent", file=sys.stderr)
+        return 1
+    if "already in a subagent" not in gemini_context:
+        print("Self-test failed: gemini context should include no-nesting guidance", file=sys.stderr)
+        return 1
+
     return 0
 
 
@@ -161,16 +204,7 @@ def main():
             output = {
                 "hookSpecificOutput": {
                     "hookEventName": "UserPromptSubmit",
-                    "additionalContext": (
-                        f"[Agent Routing] Detected '{trigger}' - this task may benefit from "
-                        "Codex CLI's deep reasoning capabilities. "
-                        "**Run from project root (never cd first)**: "
-                        "`codex exec --skip-git-repo-check --sandbox read-only -a never "
-                        '"{task description}"` for design decisions, debugging, or complex analysis. '
-                        "For implementation or test authoring, prefer: "
-                        "`codex exec --skip-git-repo-check --sandbox workspace-write -a never "
-                        '"{task description}"`.'
-                    )
+                    "additionalContext": build_codex_context(trigger)
                 }
             }
             print(json.dumps(output))
@@ -179,13 +213,7 @@ def main():
             output = {
                 "hookSpecificOutput": {
                     "hookEventName": "UserPromptSubmit",
-                    "additionalContext": (
-                        f"[Agent Routing] Detected '{trigger}' - this task may benefit from "
-                        "Gemini CLI's research capabilities. "
-                        "**Run from project root (never cd first)**: "
-                        '`gemini -p "Research: {topic}"` '
-                        "for documentation, library research, or multimodal content."
-                    )
+                    "additionalContext": build_gemini_context(trigger)
                 }
             }
             print(json.dumps(output))

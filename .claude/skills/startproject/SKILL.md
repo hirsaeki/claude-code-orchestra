@@ -13,6 +13,12 @@ description: |
 
 このスキルは3つのエージェント（Claude, Codex, Gemini）を協調させ、プロジェクト開始から実装後レビューまでをカバーする。
 
+## Execution Scope (CRITICAL)
+
+- This is an **orchestrator-only** skill.
+- Do not run this skill from within a subagent.
+- If already in a subagent, return a concise handoff and ask the main orchestrator to run `/startproject`.
+
 ## Workflow
 
 ```

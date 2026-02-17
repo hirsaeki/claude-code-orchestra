@@ -8,6 +8,7 @@ Logs are stored in .claude/logs/cli-tools.jsonl
 All agents (Claude Code, subagents, Codex, Gemini) can read this log.
 """
 
+import contextlib
 import json
 import os
 import re
@@ -15,7 +16,8 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
-LOG_DIR = Path(__file__).parent.parent / "logs"
+_DEFAULT_LOG_DIR = Path(__file__).parent.parent / "logs"
+LOG_DIR = Path(os.getenv("_ORCHESTRA_LOG_DIR_OVERRIDE", str(_DEFAULT_LOG_DIR)))
 LOG_FILE = LOG_DIR / "cli-tools.jsonl"
 SENSITIVE_PATTERNS = [
     re.compile(r"\bsk-[A-Za-z0-9_-]{10,}\b"),
@@ -119,12 +121,38 @@ def rotate_log_if_needed() -> None:
     LOG_FILE.rename(rotated)
 
 
+LOCK_FILE = LOG_FILE.with_suffix(".jsonl.lock")
+
+
+@contextlib.contextmanager
+def _file_lock(lock_path: Path):
+    """Cross-platform advisory file lock."""
+    lock_path.parent.mkdir(parents=True, exist_ok=True)
+    lock_fd = open(lock_path, "w")
+    try:
+        try:
+            import msvcrt
+            msvcrt.locking(lock_fd.fileno(), msvcrt.LK_LOCK, 1)
+        except ImportError:
+            import fcntl
+            fcntl.flock(lock_fd.fileno(), fcntl.LOCK_EX)
+        yield
+    finally:
+        try:
+            import msvcrt
+            msvcrt.locking(lock_fd.fileno(), msvcrt.LK_UNLCK, 1)
+        except (ImportError, OSError):
+            pass
+        lock_fd.close()
+
+
 def log_entry(entry: dict) -> None:
     """Append entry to JSONL log file."""
     LOG_DIR.mkdir(parents=True, exist_ok=True)
-    rotate_log_if_needed()
-    with open(LOG_FILE, "a", encoding="utf-8") as f:
-        f.write(json.dumps(entry, ensure_ascii=False) + "\n")
+    with _file_lock(LOCK_FILE):
+        rotate_log_if_needed()
+        with open(LOG_FILE, "a", encoding="utf-8") as f:
+            f.write(json.dumps(entry, ensure_ascii=False) + "\n")
 
 
 def parse_tool_response(hook_input: dict) -> tuple[str, str, int]:
@@ -217,14 +245,17 @@ def main() -> None:
     response = stdout if stdout else stderr if stderr else ""
 
     # Create log entry
+    stdout_t = truncate_text(stdout) if stdout else ""
+    stderr_t = truncate_text(stderr) if stderr else ""
     entry = {
         "timestamp": datetime.now(timezone.utc).isoformat(),
+        "schema_version": 1,
         "tool": tool,
         "model": model,
         "prompt": truncate_text(prompt) if prompt else None,
-        "stdout": truncate_text(stdout) if stdout else "",
-        "stderr": truncate_text(stderr) if stderr else "",
-        "response": truncate_text(response) if response else "",
+        "stdout": stdout_t,
+        "stderr": stderr_t,
+        "response": stdout_t or stderr_t,
         "success": success,
         "has_output": has_output,
         "exit_code": exit_code,

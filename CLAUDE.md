@@ -41,10 +41,12 @@ Claude Code のコンテキストは **200k トークン** だが、ツール定
 
 ```
 # MUST: サブエージェント経由（大きな出力）
-Task(subagent_type="general-purpose", prompt="Codexに設計を相談し、要約を返して")
+Task(subagent_type="implementer", prompt="Codexに設計を相談し、要約を返して")
 
 # OK: 直接呼び出し（小さな出力のみ）
 Bash("codex exec --skip-git-repo-check ... '1文で答えて'")  # Always run from project root (never cd first)
+
+# IMPORTANT: サブエージェント内で Task(...) を再実行しない（ネスト禁止）
 ```
 
 ---
@@ -64,12 +66,12 @@ Bash("codex exec --skip-git-repo-check ... '1文で答えて'")  # Always run fr
 大きな出力が見込まれるため **サブエージェント経由** を使う。
 
 ```
-Task(subagent_type="general-purpose", prompt="
+Task(subagent_type="implementer", prompt="
 実装とテスト作成をCodexに依頼する。
 
 # IMPORTANT: Run from project root, never cd to subdirectory first
 # Specify target directory in the prompt if needed
-codex exec --skip-git-repo-check --sandbox workspace-wirte -a never \"
+codex exec --skip-git-repo-check --sandbox workspace-write -a never \"
 Work on files in {target/directory/}. {Implement task in English. Include files to modify and tests to add.}
 \"
 
@@ -89,6 +91,23 @@ Return CONCISE summary:
 - リサーチ（「調べて」「最新の情報は？」）
 - 大規模分析（「コードベース全体を理解して」）
 - マルチモーダル（「このPDF/動画を見て」）
+
+### Gemini 呼び出しテンプレ（調査）
+
+```
+Task(subagent_type="researcher", prompt="
+Geminiで調査を実施し、要点のみ返して。
+
+gemini -p \"Research: {topic}\" 2>> .claude/logs/cli-tools.stderr.log
+
+Return CONCISE summary:
+- Top findings
+- Risks
+- Suggested next steps
+")
+```
+
+ドキュメント更新・引き継ぎ作業は `Task(subagent_type="doc-ops", ...)` を使う。
 
 → 詳細: `.claude/rules/gemini-delegation.md`
 

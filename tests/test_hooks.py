@@ -2,6 +2,7 @@
 """Unit tests for Claude Code Orchestra hooks."""
 
 import json
+import os
 import py_compile
 import subprocess
 import sys
@@ -62,20 +63,12 @@ class TestLogCliTools:
     def log_env(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
         log_dir = tmp_path / "logs"
         log_dir.mkdir()
-
         monkeypatch.setenv("_ORCHESTRA_LOG_DIR_OVERRIDE", str(log_dir))
-
-        hook_src = self.HOOK.read_text(encoding="utf-8")
-        patched = hook_src.replace(
-            'LOG_DIR = Path(__file__).parent.parent / "logs"',
-            f'LOG_DIR = Path(r"{log_dir}")',
-        )
-        patched_hook = tmp_path / "log-cli-tools.py"
-        patched_hook.write_text(patched, encoding="utf-8")
-        return patched_hook
+        return self.HOOK
 
     def _read_last_log_entry(self, log_env: Path) -> dict | None:
-        log_file = log_env.parent / "logs" / "cli-tools.jsonl"
+        log_dir = Path(os.environ["_ORCHESTRA_LOG_DIR_OVERRIDE"])
+        log_file = log_dir / "cli-tools.jsonl"
         if not log_file.exists():
             return None
         lines = log_file.read_text(encoding="utf-8").strip().splitlines()

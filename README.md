@@ -66,10 +66,10 @@ Windows でクローンする場合、以下の設定が必要です:
 │           → ユーザー対話・調整・テスト実行を担当             │
 │                      ↓                                      │
 │  ┌───────────────────────────────────────────────────────┐  │
-│  │              Subagent (general-purpose)               │  │
+│  │   Subagents: researcher / implementer / doc-ops      │  │
 │  │              → 独立したコンテキストを持つ               │  │
-│  │              → Codex/Gemini を呼び出し可能             │  │
-│  │              → 結果を要約してメインに返す              │  │
+│  │              → Codex/Gemini を直接呼び出し可能          │  │
+│  │              → ネスト起動せず結果を要約して返す          │  │
 │  │                                                       │  │
 │  │   ┌──────────────┐        ┌──────────────┐           │  │
 │  │   │  Codex CLI   │        │  Gemini CLI  │           │  │
@@ -102,7 +102,10 @@ Windows でクローンする場合、以下の設定が必要です:
 │
 ├── .claude/
 │   ├── agents/
-│   │   └── general-purpose.md   # サブエージェント設定
+│   │   ├── general-purpose.md   # 汎用サブエージェント
+│   │   ├── researcher.md        # 調査・ライブラリ調査
+│   │   ├── implementer.md       # 実装・TDD・リファクタ
+│   │   └── doc-ops.md           # 設計記録・handoff
 │   │
 │   ├── skills/                  # 再利用可能なワークフロー
 │   │   ├── startproject/        # プロジェクト開始
@@ -146,6 +149,8 @@ Windows でクローンする場合、以下の設定が必要です:
 ### `/startproject` — プロジェクト開始
 
 マルチエージェント協調でプロジェクトを開始します。
+
+**実行スコープ:** orchestrator-only（サブエージェント内からは実行しない）
 
 ```
 /startproject ユーザー認証機能
@@ -223,6 +228,8 @@ Amp-style の handoff パッケージ（作業サマリー + 再開プロンプ�
 - 「どちらがいい？」「比較して」
 - 「テストを書いて」「テストが落ちた」
 
+**推奨委譲先:** `Task(subagent_type="implementer", ...)`
+
 ### `/consult-gemini` — Gemini CLI連携
 
 リサーチ・大規模分析・マルチモーダル処理に使用します。
@@ -231,6 +238,14 @@ Amp-style の handoff パッケージ（作業サマリー + 再開プロンプ�
 - 「調べて」「リサーチして」
 - 「このPDF/動画を見て」
 - 「コードベース全体を理解して」
+
+**推奨委譲先:** `Task(subagent_type="researcher", ...)`
+
+### サブエージェント運用ルール（重要）
+
+- メインオーケストレーターから `researcher` / `implementer` / `doc-ops` を呼び出す
+- サブエージェント内でさらに `Task(...)` を呼ばない（ネスト禁止）
+- サブエージェント内では Codex/Gemini CLI を直接実行する
 
 ### `/simplify` — コードリファクタリング
 

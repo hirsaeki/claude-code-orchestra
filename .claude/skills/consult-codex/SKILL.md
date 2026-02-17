@@ -46,8 +46,11 @@ description: |
 > **Command syntax, sandbox modes, patch application, and subagent patterns**:
 > see `.claude/rules/cli-reference.md`
 
-Use Task tool with `subagent_type='general-purpose'` to preserve main context.
-Direct Bash call is acceptable only for quick questions expecting 1-2 sentence answers.
+Execution mode:
+
+- **Main orchestrator**: Use Task tool with `subagent_type='implementer'` to preserve main context.
+- **Already in a subagent**: Never use Task tool (nested subagent calls are blocked). Call Codex CLI directly via Bash.
+- Direct Bash call is acceptable for quick questions expecting 1-2 sentence answers.
 
 ## Task Templates
 

@@ -52,29 +52,33 @@ SESSION_HISTORY_HEADER = "## Session History"
 
 
 def parse_logs(since: str | None = None) -> list[dict]:
-    """Parse JSONL log file and return entries."""
-    if not LOG_FILE.exists():
-        return []
-
+    """Parse JSONL log file(s) and return entries."""
     entries = []
     since_dt = None
     if since:
         since_dt = datetime.fromisoformat(since).replace(tzinfo=timezone.utc)
 
-    with open(LOG_FILE, encoding="utf-8") as f:
-        for line in f:
-            line = line.strip()
-            if not line:
-                continue
-            try:
-                entry = json.loads(line)
-                if since_dt:
-                    entry_dt = datetime.fromisoformat(entry["timestamp"].replace("Z", "+00:00"))
-                    if entry_dt < since_dt:
-                        continue
-                entries.append(entry)
-            except (json.JSONDecodeError, KeyError):
-                continue
+    # Read rotated file first (older), then current file (newer)
+    log_files = [LOG_FILE.with_suffix(".jsonl.1"), LOG_FILE]
+    for log_file in log_files:
+        if not log_file.exists():
+            continue
+        with open(log_file, encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    entry = json.loads(line)
+                    if since_dt:
+                        entry_dt = datetime.fromisoformat(
+                            entry["timestamp"].replace("Z", "+00:00")
+                        )
+                        if entry_dt < since_dt:
+                            continue
+                    entries.append(entry)
+                except (json.JSONDecodeError, KeyError, TypeError, ValueError):
+                    continue
 
     return entries
 

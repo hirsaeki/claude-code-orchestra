@@ -56,9 +56,12 @@ description: |
 > **Command syntax, subagent patterns, and output locations**:
 > see `.claude/rules/cli-reference.md`
 
-Use Task tool with `subagent_type='general-purpose'` to preserve main context.
-Direct Bash call is acceptable only for quick questions expecting brief answers.
-Save full output to `.claude/docs/research/{topic}.md`.
+Execution mode:
+
+- **Main orchestrator**: Use Task tool with `subagent_type='researcher'` to preserve main context.
+- **Already in a subagent**: Never use Task tool (nested subagent calls are blocked). Call Gemini CLI directly via Bash.
+- Direct Bash call is acceptable for quick questions expecting brief answers.
+- Save full output to `.claude/docs/research/{topic}.md`.
 
 ## Task Templates
 
