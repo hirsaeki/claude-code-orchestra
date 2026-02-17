@@ -148,7 +148,7 @@ all = ["lint", "typecheck", "test"]
 # Initialize
 uv init
 uv venv
-.\\.venv\\Scripts\\Activate.ps1
+source .venv/bin/activate  # Git Bash / WSL
 
 # Install dev dependencies
 uv sync --all-extras

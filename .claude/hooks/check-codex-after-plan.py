@@ -31,9 +31,11 @@ def should_suggest_codex_review(tool_input: dict, tool_output: str | None = None
     description = tool_input.get("description", "").lower()
     prompt = tool_input.get("prompt", "").lower()
 
-    # Check if this is a Plan agent
-    if subagent_type == "plan":
-        return True, "Plan task completed"
+    # Check if subagent_type indicates planning work
+    # Note: No dedicated "plan" agent exists; planning tasks typically use
+    # "general-purpose" or "researcher". We match planning-related types broadly.
+    if subagent_type in ("plan", "planner"):
+        return True, "Planning task completed"
 
     # Check description/prompt for planning keywords
     combined_text = f"{description} {prompt}"
@@ -64,9 +66,14 @@ def main():
                     "hookEventName": "PostToolUse",
                     "additionalContext": (
                         f"[Codex Review Suggestion] {reason}. "
-                        "Consider having Codex review this plan for potential improvements. "
+                        "Consider having Codex review this plan for potential improvements.\n"
                         "**Recommended**: Use Task tool with subagent_type='general-purpose' "
-                        "to consult Codex and preserve main context."
+                        "and prompt Codex for review:\n"
+                        "```\n"
+                        'codex exec --skip-git-repo-check --sandbox read-only -a never '
+                        '"Review this plan: {paste plan summary}" '
+                        "2>> .claude/logs/cli-tools.stderr.log\n"
+                        "```"
                     )
                 }
             }

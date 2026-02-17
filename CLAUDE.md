@@ -73,7 +73,7 @@ Task(subagent_type="implementer", prompt="
 # Specify target directory in the prompt if needed
 codex exec --skip-git-repo-check --sandbox workspace-write -a never \"
 Work on files in {target/directory/}. {Implement task in English. Include files to modify and tests to add.}
-\"
+\" 2>> .claude/logs/cli-tools.stderr.log
 
 Return CONCISE summary:
 - Files changed
@@ -132,11 +132,19 @@ Return CONCISE summary:
 
 ### Session Handoff Rule
 
-セッション終了前に `/handoff --goal "次セッションの目標"` を実行し、
+セッション終了前に `/handoff` スキルを呼び出し、
 `.claude/handoffs/` に引き継ぎパック（summary + resume prompt）を保存する。
 
-- `checkpointing --full`: 履歴保存・分析向け
-- `handoff`: 次セッション再開速度の最適化向け
+```
+/handoff --goal "次セッションの目標"
+```
+
+> `/handoff` は Claude Code のスラッシュコマンド（スキル呼び出し）。
+> 内部で `python .claude/skills/checkpointing/checkpoint.py --handoff --goal "..."` が実行される。
+> 再開時は `/handoff --resume`。
+
+- `/checkpointing --full`: 履歴保存・分析向け
+- `/handoff`: 次セッション再開速度の最適化向け
 
 ### Planning Tagging Rule
 

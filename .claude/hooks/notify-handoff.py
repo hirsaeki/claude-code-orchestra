@@ -3,7 +3,8 @@
 SessionStart hook: Notify if unread handoff packages exist.
 
 Checks .claude/handoffs/ for the latest .prompt.md file and suggests
-loading it via `/handoff --resume`.
+loading it via the /handoff skill (which internally runs
+python .claude/skills/checkpointing/checkpoint.py --handoff --resume).
 """
 
 import json

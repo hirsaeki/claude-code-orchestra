@@ -127,9 +127,16 @@ def main():
                     "hookEventName": "PostToolUse",
                     "additionalContext": (
                         f"[Code Review Suggestion] {reason} in this session. "
-                        "Consider having Codex review the implementation. "
+                        "Consider having Codex review the implementation.\n"
                         "**Recommended**: Use Task tool with subagent_type='general-purpose' "
-                        "to consult Codex with git diff and preserve main context."
+                        "and the following prompt pattern:\n"
+                        "```\n"
+                        "git diff HEAD~1 > /tmp/review.diff\n"
+                        'codex exec --skip-git-repo-check --sandbox read-only -a never '
+                        '"Review this diff for bugs, style issues, and missing tests: '
+                        '$(cat /tmp/review.diff)" '
+                        "2>> .claude/logs/cli-tools.stderr.log\n"
+                        "```"
                     )
                 }
             }
