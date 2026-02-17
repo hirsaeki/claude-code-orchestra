@@ -108,3 +108,20 @@ Task tool parameters:
 | Codex | Summary returned to orchestrator |
 | Gemini | Full output saved to `.claude/docs/research/{topic}.md` |
 | Both | I/O logged to `.claude/logs/cli-tools.jsonl` |
+
+## Log Inspection
+
+CLI 呼び出しの結果が不審なとき、ログを確認する。
+
+```bash
+# 直近5件を表示
+tail -5 .claude/logs/cli-tools.jsonl | jq '.'
+
+# 失敗した呼び出しだけ抽出
+jq 'select(.success == false)' .claude/logs/cli-tools.jsonl
+
+# 特定ツールの履歴（codex / gemini）
+jq 'select(.tool == "codex")' .claude/logs/cli-tools.jsonl
+```
+
+各レコードの主要フィールド: `timestamp`, `tool`, `prompt`, `stdout`, `stderr`, `success`, `exit_code`
